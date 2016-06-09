@@ -1,0 +1,8 @@
+{
+    "rules": {
+        "comment-format": [
+            true,
+            "check-space"
+        ]
+    }
+}
