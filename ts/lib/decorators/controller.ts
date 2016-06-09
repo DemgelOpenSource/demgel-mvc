@@ -8,10 +8,12 @@ export const controllerName = Symbol("controller-name");
  *
  * It is not required but if Controller is at the end, it will be removed for the route name
  */
-export function Controller(baseRoute?: string) {
+export function Controller(options: {baseRoute?: string, index?: boolean}) {
     return (target: any) => {
-        if (baseRoute) {
-            Reflect.defineMetadata(controllerName, baseRoute, target);
+        if (options.index) {
+            Reflect.defineMetadata(controllerName, 'index', target);
+        } else if (options.baseRoute) {
+            Reflect.defineMetadata(controllerName, options.baseRoute, target);
         } else {
             // TODO: for now throw, later will add support for not name
             throw new Error("Currently not implemented, please supply a name to the controller: " + target);

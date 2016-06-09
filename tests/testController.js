@@ -8,19 +8,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 const abstractController_1 = require("../lib/controllers/abstractController");
 const controller_1 = require("../lib/decorators/controller");
+const testService_1 = require("./testService");
 const view_1 = require("../lib/result/view");
+const inversify_1 = require("inversify");
 const json_1 = require("../lib/result/json");
 let TestController = class TestController extends abstractController_1.mvcController {
-    constructor() {
+    constructor(test) {
         super();
+        test.doSomething();
     }
     someFunction() {
-        console.log(this);
         return new view_1.View(this, "someFunction", { pageTitle: 'someFuntion' });
     }
-    anotherFunction() {
+    anotherFunction(test, test2) {
         return new view_1.View(this, "someFunction", { pageTitle: 'anotherFunction' });
     }
     failFunction() {
@@ -36,7 +41,7 @@ __decorate([
 __decorate([
     controller_1.HttpGet("hello"), 
     __metadata('design:type', Function), 
-    __metadata('design:paramtypes', []), 
+    __metadata('design:paramtypes', [String, String]), 
     __metadata('design:returntype', void 0)
 ], TestController.prototype, "anotherFunction", null);
 __decorate([
@@ -46,7 +51,8 @@ __decorate([
     __metadata('design:returntype', json_1.JsonResult)
 ], TestController.prototype, "failFunction", null);
 TestController = __decorate([
-    controller_1.Controller("test-controller"), 
-    __metadata('design:paramtypes', [])
+    controller_1.Controller({ baseRoute: "test-controller", index: true }),
+    __param(0, inversify_1.inject("TestService")), 
+    __metadata('design:paramtypes', [testService_1.TestService])
 ], TestController);
 exports.TestController = TestController;

@@ -13,7 +13,6 @@ export const router = Symbol("router");
 const kernel = new Kernel();
 
 export function expressMvc(...controllers: any[]): ExpressMvcInterface {
-    // kernel = new Kernel();
     kernel.bind<ExpressMvcInterface>(express).to(ExpressMvc);
     kernel.bind<Router>(router).to(Router);
     // Handle registering Controllers
@@ -25,15 +24,29 @@ export function expressMvc(...controllers: any[]): ExpressMvcInterface {
 
 @injectable()
 class ExpressMvc implements ExpressMvcInterface {
-    private started: boolean;
+    private running: boolean;
     private server: e.Express;
 
     constructor( @inject(router) private router: Router) {
         router.kernel = kernel;
     }
 
-    addTransient() { }
-    addSingleton() { }
+    addTransient<T>(identifier: string, service: any) {
+        if (this.running) {
+            throw new Error("Add services before starting server.");
+        }
+
+        kernel.bind<T>(identifier).to(service);
+    }
+
+    addSingleton<T>(identifier: string, service: any) {
+        if (this.running) {
+            throw new Error("Add services before starting server.");
+        }
+
+        kernel.bind<T>(identifier).to(service).inSingletonScope();
+    }
+
     start() {
         // Define the express server
         this.server = e();
@@ -42,18 +55,19 @@ class ExpressMvc implements ExpressMvcInterface {
         this.server.set('view engine', 'pug');
 
         // This will call the router which will be from inversify, for now fudge it
-        this.server.get("/:one?/:two?/:three?", (req, res) => {
+        this.server.get("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?", (req, res) => {
             this.router.route(req, res);
         });
 
         this.server.listen(3000, () => {
             console.log("Listening on port 3000");
+            this.running = true;
         })
     }
 }
 
 interface ExpressMvcInterface {
-    addSingleton();
-    addTransient();
+    addSingleton<T>(identifier: string, service: any);
+    addTransient<T>(identifier: string, service: any);
     start();
 }

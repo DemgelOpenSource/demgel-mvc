@@ -1,4 +1,13 @@
 {
   "name": "express-mvc",
-  "dependencies": {}
+  "dependencies": {},
+  "globalDependencies": {
+    "debug": "registry:dt/debug#0.0.0+20160317120654",
+    "express": "registry:dt/express#4.0.0+20160317120654",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160602151406",
+    "lodash": "registry:dt/lodash#3.10.0+20160330154726",
+    "mime": "registry:dt/mime#0.0.0+20160316155526",
+    "node": "registry:dt/node#6.0.0+20160608110640",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160606155157"
+  }
 }
