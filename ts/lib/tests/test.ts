@@ -1,4 +1,4 @@
-import {expressMvc} from "../lib/express-mvc";
+import {expressMvc} from "../express-mvc";
 import {TestController} from "./testController";
 import {TestService} from "./testService";
 

@@ -1,4 +1,4 @@
-import {injectable, Kernel} from "inversify";
+import {injectable, IKernel} from "inversify";
 import {mvcController} from "./controllers/abstractController";
 import {Request, Response} from "express";
 import {Result} from "./result/result";
@@ -8,7 +8,7 @@ import * as _debug from "debug";
 
 @injectable()
 export class Router {
-    kernel: any;
+    kernel: IKernel;
     debug = _debug("router");
     
     constructor() { }

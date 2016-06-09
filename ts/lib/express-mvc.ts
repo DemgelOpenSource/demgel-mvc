@@ -66,7 +66,7 @@ class ExpressMvc implements ExpressMvcInterface {
     }
 }
 
-interface ExpressMvcInterface {
+export interface ExpressMvcInterface {
     addSingleton<T>(identifier: string, service: any);
     addTransient<T>(identifier: string, service: any);
     start();
