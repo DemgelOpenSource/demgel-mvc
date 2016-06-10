@@ -6,6 +6,7 @@ import {mvcController} from './controllers/mvcController';
 import {GetControllerName} from './decorators/controller';
 import {Router} from "./router";
 import * as _debug from "debug";
+import * as favicon from "serve-favicon";
 import "reflect-metadata";
 
 export const express = Symbol("express-mvc");
@@ -39,40 +40,54 @@ class ExpressMvc implements ExpressMvcInterface {
         this.server = e();
         this.server.set('views', '../views');
         this.server.set('view engine', 'pug');
-
-        // This will call the router which will be from inversify, for now fudge it
-        this.server.get("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?", (req, res) => {
-            this.router.route(req, res);
-        });
     }
 
-    addTransient<T>(identifier: string, service: any) {
+    addTransient<T>(identifier: string, service: any): ExpressMvcInterface {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
 
         kernel.bind<T>(identifier).to(service);
+        return this;
     }
 
-    addSingleton<T>(identifier: string, service: any) {
+    addSingleton<T>(identifier: string, service: any): ExpressMvcInterface {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
 
         kernel.bind<T>(identifier).to(service).inSingletonScope();
+        return this;
     }
 
-    setViewEngine(engine: string, directory: string) {
+    setViewEngine(engine: string, directory: string): ExpressMvcInterface {
         if (this.running) {
             throw new Error("Set view engine before server is started.");
         }
 
         this.server.set('views', directory);
         this.server.set('view engine', engine);
+        return this;
+    }
+
+    setFavicon(path: string): ExpressMvcInterface {
+        this.server.use(favicon(path));
+        return this;
+    }
+
+    addStatic(path: string): ExpressMvcInterface {
+        this.server.use(e.static(path));
+        return this;
     }
 
     listen(port?: number, host?: string) {
         port = port || 3000;
+        
+        // This will call the router which will be from inversify, for now fudge it
+        this.server.all("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?", (req, res) => {
+            this.router.route(req, res);
+        });
+
         this.server.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
@@ -81,8 +96,10 @@ class ExpressMvc implements ExpressMvcInterface {
 }
 
 export interface ExpressMvcInterface {
-    addSingleton<T>(identifier: string, service: any);
-    addTransient<T>(identifier: string, service: any);
-    setViewEngine(engine: string, directory: string);
+    addSingleton<T>(identifier: string, service: any): ExpressMvcInterface;
+    addTransient<T>(identifier: string, service: any): ExpressMvcInterface;
+    setViewEngine(engine: string, directory: string): ExpressMvcInterface;
+    setFavicon(path: string): ExpressMvcInterface;
+    addStatic(path: string): ExpressMvcInterface;
     listen(port?: number, host?: string);
 }

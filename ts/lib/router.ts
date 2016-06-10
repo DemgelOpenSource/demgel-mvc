@@ -3,6 +3,7 @@ import {mvcController} from "./controllers/mvcController";
 import {GetControllerName} from "./decorators/controller";
 import {Request, Response} from "express";
 import {Result} from "./result/result";
+import {ErrorResult} from "./result/errorResult";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
@@ -80,7 +81,7 @@ export class Router {
                         }
                         break;
                     default:
-                        res.status(500).send("Method not handled " + req.method);
+                        new ErrorResult(500, `Method not handled ${req.method}`).handle(res);
                         return;
                 }
                 if (foundController && foundMethod) {
@@ -103,16 +104,17 @@ export class Router {
                         cont.context = new Context(req, res);
                         result = cont[handle].apply(cont, args);
                     } else {
-                        res.status(500).send("Bad Request");
+                        debug("args don't match method");
+                        new ErrorResult(500, "Bad Request").handle(res);
                     }    
                 } else {
-                    res.status(404).send("Route Not Found");
+                    new ErrorResult(404, "Route Not Found").handle(res);
                     return;
                 }
                 result.handle(res);
             })
             .catch(err => {
-                res.status(500).send("Error resolving controller");
+                new ErrorResult(500, "Error resolving controller").handle(res);
             })
     }
 
