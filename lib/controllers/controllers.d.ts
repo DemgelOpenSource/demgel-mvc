@@ -1,1 +1,1 @@
-export * from './abstractController';
+export * from './mvcController';

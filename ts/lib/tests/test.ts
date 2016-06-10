@@ -4,4 +4,4 @@ import {TestService} from "./testService";
 
 let server = expressMvc(TestController);
 server.addTransient<TestService>("TestService", TestService);
-server.start();
+server.listen(3000);

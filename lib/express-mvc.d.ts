@@ -6,5 +6,6 @@ export declare function expressMvc(...controllers: any[]): ExpressMvcInterface;
 export interface ExpressMvcInterface {
     addSingleton<T>(identifier: string, service: any): any;
     addTransient<T>(identifier: string, service: any): any;
-    start(): any;
+    setViewEngine(engine: string, directory: string): any;
+    listen(port?: number, host?: string): any;
 }

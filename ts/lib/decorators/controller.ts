@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {mvcController} from "../controllers/abstractController";
+import {mvcController} from "../controllers/mvcController";
 
 export const controllerName = Symbol("controller-name");
 

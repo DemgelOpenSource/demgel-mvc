@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { mvcController } from "../controllers/abstractController";
+import { mvcController } from "../controllers/mvcController";
 export declare const controllerName: Symbol;
 /**
  * baseRoute if null will use the name of the controller lowercased (HelloController becomes hello)

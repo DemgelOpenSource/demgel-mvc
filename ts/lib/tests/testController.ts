@@ -1,9 +1,8 @@
-import {mvcController} from "../controllers/abstractController";
-import {Controller, HttpGet} from "../decorators/controller";
+import {mvcController} from "../controllers/mvcController";
+import {Controller, HttpGet} from "../decorators/decorators";
 import {TestService} from "./testService";
-import {View} from "../result/view";
 import {inject} from "inversify";
-import {JsonResult} from "../result/json";
+import {JsonResult, View} from "../result/results";
 
 @Controller({baseRoute: "test-controller", index: true})
 export class TestController extends mvcController {

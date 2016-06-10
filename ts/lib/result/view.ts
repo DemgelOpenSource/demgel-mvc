@@ -1,6 +1,6 @@
 import {Result} from "./result";
 import {Response} from "express";
-import {mvcController} from "../controllers/abstractController";
+import {mvcController} from "../controllers/mvcController";
 
 export class View extends Result {
     controller: string;

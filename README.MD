@@ -10,7 +10,7 @@ There are still no Typings for this, using this will be very difficult if even p
 import {mvcController, View} from 'express-mvc';
 import {inject} from 'inversify';
 
-@Controller({baseName: 'example'})
+@Controller({baseRoute: 'example'})
 export class ExampleController extends mvcController {
     constructor(@inject("SomeService") service: SomeService) {
         super();
@@ -54,5 +54,5 @@ import {SomeController, AnotherController} from "./controllers";
 // You have to pass the controllers or array of controllers to expressMvc
 let server = expressMvc(SomeController, AnotherController);
 server.addTransient<SomeService>("SomeService", SomeService);
-server.start();
+server.listen(3000);
 ```

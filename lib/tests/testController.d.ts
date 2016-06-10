@@ -1,7 +1,6 @@
-import { mvcController } from "../controllers/abstractController";
+import { mvcController } from "../controllers/mvcController";
 import { TestService } from "./testService";
-import { View } from "../result/view";
-import { JsonResult } from "../result/json";
+import { JsonResult, View } from "../result/results";
 export declare class TestController extends mvcController {
     constructor(test: TestService);
     someFunction(): View;

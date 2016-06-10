@@ -1,17 +1,21 @@
 import {injectable, IKernel} from "inversify";
-import {mvcController} from "./controllers/abstractController";
+import {mvcController} from "./controllers/mvcController";
+import {GetControllerName} from "./decorators/controller";
 import {Request, Response} from "express";
 import {Result} from "./result/result";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
 
+const debug = _debug("router");
 @injectable()
 export class Router {
     kernel: IKernel;
-    debug = _debug("router");
+
+    private controllerMap: { [key: string]: mvcController } = {};
     
-    constructor() { }
+    constructor() {   
+    }
 
     route(req: Request, res: Response) {
         var cont: mvcController;
@@ -31,13 +35,13 @@ export class Router {
         this.getController(controller)
             .then(cont => {
                 // Found
-                this.debug("Found Controller " + controller);
+                debug("Found Controller " + controller);
                 foundController = true;
                 return cont;
             })
             .catch(rejected => {
                 method = req.params.one || null;
-                this.debug("Failed to find controller, looking for index");
+                debug("Failed to find controller, looking for index");
                 return this.getController('index');
             })
             .then(cont => {
@@ -52,13 +56,19 @@ export class Router {
                         }
                         break;
                     case 'POST':
-                        if (cont.routes && cont.routes.post) {
-                            handle = cont.routes.post[method] || null;
+                        if (cont.routes && cont.routes.post && cont.routes.post[method]) {
+                            foundMethod = true;
+                            handle = cont.routes.post[method];
+                        } else if (cont.routes && cont.routes.post && cont.routes.post.default) {
+                            handle = cont.routes.post.default
                         }
                         break;
                     case 'DELETE':
-                        if (cont.routes && cont.routes.del) {
-                            handle = cont.routes.del[method] || null;
+                        if (cont.routes && cont.routes.del && cont.routes.del[method]) {
+                            foundMethod = true;
+                            handle = cont.routes.del[method];
+                        } else if (cont.routes && cont.routes.del && cont.routes.del.default) {
+                            handle = cont.routes.del.default;
                         }
                         break;
                     case 'GET':
@@ -88,8 +98,9 @@ export class Router {
                             args.push(params[param]);
                         }
                     });
-                    this.debug("Passing args to method: ", args);
+                    debug("Passing args to method: ", args);
                     if (methodParams.length === args.length) {
+                        cont.context = new Context(req, res);
                         result = cont[handle].apply(cont, args);
                     } else {
                         res.status(500).send("Bad Request");
