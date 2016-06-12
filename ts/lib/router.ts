@@ -13,7 +13,7 @@ const debug = _debug("router");
 export class Router {
     kernel: IKernel;
 
-    private controllerMap: { [key: string]: mvcController } = {};
+    // controllerMap: { [key: string]: mvcController } = {};
     
     constructor() {   
     }
@@ -114,11 +114,12 @@ export class Router {
                 result.handle(res);
             })
             .catch(err => {
+                console.log(err);
                 new ErrorResult(500, "Error resolving controller").handle(res);
             })
     }
 
-    private getController(controller: string): Promise<mvcController> {
+    getController(controller: string): Promise<mvcController> {
         return new Promise((resolve, reject) => {
             if (!controller || controller === "") {
                 reject();

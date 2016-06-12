@@ -1,22 +1,21 @@
-/// <reference path="../../node_modules/inversify-dts/inversify/inversify.d.ts" />
-
 import * as e from "express";
-import {Kernel, injectable, inject} from 'inversify';
+import {Kernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
 import {GetControllerName} from './decorators/controller';
 import {Router} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
+import {IOptions} from "./options";
 import "reflect-metadata";
 
 export const express = Symbol("express-mvc");
 export const router = Symbol("router");
 
-const kernel = new Kernel();
+export const kernel = new Kernel();
 const debug = _debug('express-mvc');
 
-export function expressMvc(...controllers: any[]): ExpressMvcInterface {
-    kernel.bind<ExpressMvcInterface>(express).to(ExpressMvc);
+export function expressMvc(...controllers: any[]): ExpressMvc {
+    kernel.bind<ExpressMvc>(express).to(ExpressMvc);
     kernel.bind<Router>(router).to(Router);
     debug("Bound Interface and Router");
     // Handle registering Controllers
@@ -26,15 +25,15 @@ export function expressMvc(...controllers: any[]): ExpressMvcInterface {
         debug(`Bound controller (${GetControllerName(controller)})`);
     });
     debug('Finished binding controllers...');
-    return kernel.get<ExpressMvcInterface>(express);
+    return kernel.get<ExpressMvc>(express) as ExpressMvc;
 }
 
 @injectable()
-class ExpressMvc implements ExpressMvcInterface {
-    private running: boolean;
-    private server: e.Express;
+export class ExpressMvc {
+    running: boolean;
+    server: e.Express;
 
-    constructor( @inject(router) private router: Router) {
+    constructor( @inject(router) public router: Router) {
         router.kernel = kernel;
 
         this.server = e();
@@ -42,7 +41,7 @@ class ExpressMvc implements ExpressMvcInterface {
         this.server.set('view engine', 'pug');
     }
 
-    addTransient<T>(identifier: string, service: any): ExpressMvcInterface {
+    addTransient<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -51,7 +50,7 @@ class ExpressMvc implements ExpressMvcInterface {
         return this;
     }
 
-    addSingleton<T>(identifier: string, service: any): ExpressMvcInterface {
+    addSingleton<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -60,7 +59,11 @@ class ExpressMvc implements ExpressMvcInterface {
         return this;
     }
 
-    setViewEngine(engine: string, directory: string): ExpressMvcInterface {
+    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: any) {
+        kernel.bind<T>(identifier).toConstantValue(constantObj);
+    }
+
+    setViewEngine(engine: string, directory: string): ExpressMvc {
         if (this.running) {
             throw new Error("Set view engine before server is started.");
         }
@@ -70,17 +73,17 @@ class ExpressMvc implements ExpressMvcInterface {
         return this;
     }
 
-    setFavicon(path: string): ExpressMvcInterface {
+    setFavicon(path: string): ExpressMvc {
         this.server.use(favicon(path));
         return this;
     }
 
-    addStatic(path: string): ExpressMvcInterface {
+    addStatic(path: string): ExpressMvc {
         this.server.use(e.static(path));
         return this;
     }
 
-    listen(port?: number, host?: string) {
+    listen(port?: number, host?: string): ExpressMvc {
         port = port || 3000;
         
         // This will call the router which will be from inversify, for now fudge it
@@ -92,14 +95,7 @@ class ExpressMvc implements ExpressMvcInterface {
             console.log(`Listening on port ${port}...`);
             this.running = true;
         })
-    }
-}
 
-export interface ExpressMvcInterface {
-    addSingleton<T>(identifier: string, service: any): ExpressMvcInterface;
-    addTransient<T>(identifier: string, service: any): ExpressMvcInterface;
-    setViewEngine(engine: string, directory: string): ExpressMvcInterface;
-    setFavicon(path: string): ExpressMvcInterface;
-    addStatic(path: string): ExpressMvcInterface;
-    listen(port?: number, host?: string);
+        return this;
+    }
 }

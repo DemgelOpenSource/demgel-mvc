@@ -1,13 +1,21 @@
-/// <reference path="../node_modules/inversify-dts/inversify/inversify.d.ts" />
+import * as e from "express";
+import { INewable } from 'inversify';
+import { Router } from "./router";
 import "reflect-metadata";
 export declare const express: Symbol;
 export declare const router: Symbol;
-export declare function expressMvc(...controllers: any[]): ExpressMvcInterface;
-export interface ExpressMvcInterface {
-    addSingleton<T>(identifier: string, service: any): ExpressMvcInterface;
-    addTransient<T>(identifier: string, service: any): ExpressMvcInterface;
-    setViewEngine(engine: string, directory: string): ExpressMvcInterface;
-    setFavicon(path: string): ExpressMvcInterface;
-    addStatic(path: string): ExpressMvcInterface;
-    listen(port?: number, host?: string): any;
+export declare const kernel: inversify.IKernel;
+export declare function expressMvc(...controllers: any[]): ExpressMvc;
+export declare class ExpressMvc {
+    router: Router;
+    running: boolean;
+    server: e.Express;
+    constructor(router: Router);
+    addTransient<T>(identifier: string, service: any): ExpressMvc;
+    addSingleton<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc;
+    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: any): void;
+    setViewEngine(engine: string, directory: string): ExpressMvc;
+    setFavicon(path: string): ExpressMvc;
+    addStatic(path: string): ExpressMvc;
+    listen(port?: number, host?: string): ExpressMvc;
 }
