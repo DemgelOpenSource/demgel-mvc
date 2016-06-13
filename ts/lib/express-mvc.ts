@@ -1,4 +1,5 @@
 import * as e from "express";
+import {extend} from "express-busboy";
 import {Kernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
 import {GetControllerName} from './decorators/controller';
@@ -6,6 +7,7 @@ import {Router} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
 import {IOptions} from "./options";
+import * as bodyParser from "body-parser";
 import "reflect-metadata";
 
 export const express = Symbol("express-mvc");
@@ -33,6 +35,11 @@ export class ExpressMvc {
     running: boolean;
     server: e.Express;
 
+    busboy = { 
+        allowUpload: false,
+        uploadPath: "./uploads"
+    };
+
     constructor( @inject(router) public router: Router) {
         router.kernel = kernel;
 
@@ -41,6 +48,13 @@ export class ExpressMvc {
         this.server.set('view engine', 'pug');
     }
 
+    /**
+     * Add a Transient service to DI
+     *
+     * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
+     * @param {any} service The service to add to the DI
+     * @return {ExpressMvc}
+     */    
     addTransient<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
@@ -50,6 +64,13 @@ export class ExpressMvc {
         return this;
     }
 
+    /**
+     * Add a Singleton service to DI
+     *
+     * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
+     * @param {any} service The service to add to the DI
+     * @return {ExpressMvc}
+     */
     addSingleton<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
@@ -59,10 +80,36 @@ export class ExpressMvc {
         return this;
     }
 
-    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: any) {
+    /**
+     * An IOptions object to add to the DI, usually used by services for configuration
+     *
+     * @param {string | Symbol | INewable<T>} identifier The string/Symbol/class to identify this object in the DI
+     * @return {ExpressMvc}
+     */
+    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: T): ExpressMvc {
         kernel.bind<T>(identifier).toConstantValue(constantObj);
+        return this;
     }
 
+    /**
+     * Should uploads be allowed
+     *
+     * @param {string} path The path the files should be saved too.
+     * @return {ExpressMvc}
+     */
+    allowUpload(path?: string): ExpressMvc {
+        this.busboy.allowUpload = true;
+        this.busboy.uploadPath = path || this.busboy.uploadPath;
+        return this;
+    }   
+    
+    /**
+     * Set the view engine to be used by express to render views
+     *
+     * @param {string} engine The name of the view engine to use, defaults to 'pug'
+     * @param {string} directory The base directory that contains the views
+     * @return {ExpressMvc}
+     */
     setViewEngine(engine: string, directory: string): ExpressMvc {
         if (this.running) {
             throw new Error("Set view engine before server is started.");
@@ -73,21 +120,47 @@ export class ExpressMvc {
         return this;
     }
 
+    /**
+     * Adds support for sending favicon.ico
+     *
+     * @param {string} path The path to the favicon.ico files
+     * @return {ExpressMvc}
+     */
     setFavicon(path: string): ExpressMvc {
         this.server.use(favicon(path));
         return this;
     }
 
+    /**
+     * Adds a directory to serve static files from
+     *
+     * @param {string} path The directory to serve static files from, defaults to ./public
+     * @return {ExpressMvc}
+     */
     addStatic(path: string): ExpressMvc {
         this.server.use(e.static(path));
         return this;
     }
 
+    /**
+     * Begin listening for connections, also finalizes many configuration options
+     *
+     * @param {number} port (Optional) The port to listen on for connections
+     * @param {string} host (Optional) The host address to listen on, if left blank will use 0.0.0.0
+     * @return {ExpressMvc}
+     */
     listen(port?: number, host?: string): ExpressMvc {
         port = port || 3000;
+
+        extend(this.server, this.busboy);
+
+        if (this.busboy.allowUpload) {
+            console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
+        } else {
+            console.log('File uploads are not premitted.');
+        }
         
-        // This will call the router which will be from inversify, for now fudge it
-        this.server.all("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?", (req, res) => {
+        this.server.all("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?/:eight?/:nine?/:ten?", (req, res) => {
             this.router.route(req, res);
         });
 

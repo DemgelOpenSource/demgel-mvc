@@ -1,5 +1,5 @@
 import {mvcController} from "../controllers/mvcController";
-import {Controller, HttpGet} from "../decorators/controller";
+import {Controller, HttpGet, HttpPost} from "../decorators/controller";
 import {TestService} from "./testService";
 import {inject} from "inversify";
 import {JsonResult} from "../result/json";
@@ -14,6 +14,7 @@ export class TestController extends mvcController {
 
     @HttpGet(true)    
     someFunction(): View {
+        console.log(this.context.request.body);
         return new View(this, "someFunction", { pageTitle: 'someFuntion' });
     }
 
@@ -22,8 +23,9 @@ export class TestController extends mvcController {
         return new View(this, "someFunction", { pageTitle: 'anotherFunction' });
     }
 
-    @HttpGet()
+    @HttpPost(true)
     failFunction(): JsonResult {
+        console.log(this.context.request.body);
         return new JsonResult({ test: "Hello", property: "Test" });
     }
 }
