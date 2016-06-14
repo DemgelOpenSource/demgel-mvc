@@ -1,9 +1,8 @@
 import {injectable, IKernel} from "inversify";
 import {mvcController} from "./controllers/mvcController";
-// import {GetControllerName} from "./decorators/controller";
 import {Request, Response} from "express";
 import {Result} from "./result/result";
-import {ErrorResult} from "./result/errorResult";
+import {ErrorResult} from "./result/error";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";

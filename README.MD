@@ -24,14 +24,14 @@ export class ExampleController extends mvcController {
     }
 
     // This will make the url be http://example.com/example/post-url/someurlvalue
-    @HttpPost('post-url')
+    @HttpPost({route: 'post-url', parameters: ':/someurlvalue'})
     somePostFunction(param: someurlvalue) {
         return JsonResult({object: values});
     }
 }
 ```
 
-Under the hood, inversify is injecting and creating the Controllers as needed. Every call is a seperate request, and every controller gets a `Context` that can be used to access the request/response and eventually other important functions.
+Under the hood, inversify is injecting and creating the Controllers as needed. Every call is a seperate isntance, and every controller gets a `Context` that can be used to access the request/response and eventually other important functions.
 
 ## MiddleWare
 Middleware can still be used with express, actually you can still use express as before as you are able to access the server directly. But with express-mvc you can use decorators to handle many situations where you required middleware before.
@@ -41,6 +41,16 @@ Examples to come.
 ## Configuration
 Currently in these early stages there isn't much to configure directly with express-mvc. There will be options to allow you to set the template engine, etc, but most of this can be set directly on the express engine itself if you so choose.
 
+The current direction is to create fluent functions to set common settings.
+
+``` typescript
+    server.setFavicon("/some/path/to/favicon.ico")
+          .setViewEngine("pug", "../views");
+
+    useMongo(...); // This would be a seperate package that can be used to extend express-mvc
+
+    server.listen();
+```
 ## Setup
 
 `npm install express-mvc`

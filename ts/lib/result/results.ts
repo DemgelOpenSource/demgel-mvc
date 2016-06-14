@@ -1,4 +1,4 @@
-export * from "./errorResult";
+export * from "./error";
 export * from "./json";
 export * from "./redirect";
 export * from "./result";
