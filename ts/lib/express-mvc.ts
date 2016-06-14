@@ -2,7 +2,7 @@ import * as e from "express";
 import {extend} from "express-busboy";
 import {Kernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
-import {GetControllerName} from './decorators/controller';
+// import {GetControllerName} from './decorators/controller';
 import {Router} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
@@ -13,18 +13,41 @@ import "reflect-metadata";
 export const express = Symbol("express-mvc");
 export const router = Symbol("router");
 
-export const kernel = new Kernel();
+export enum AllowedMethods {
+    GET,
+    POST,
+    PUT,
+    DELETE
+}
+
+/**
+ * The DI kernel, should only be used with care and only if you know what you are doing.
+ * The DI kernel is documented on inversify's website
+ */
+export var kernel = new Kernel();
 const debug = _debug('express-mvc');
 
+const server = e();
+
+export function getServer(): e.Express {
+    return server;
+}
+
+/**
+ * The main function called to create a ExpressMvc object, initialized the DI and returns a useable ExpressMvc object
+ *
+ * @param {...mvcController} ...controllers The list of controllers to add to DI, all controllers used are required.
+ * @return {ExpressMvc}
+ */
 export function expressMvc(...controllers: any[]): ExpressMvc {
     kernel.bind<ExpressMvc>(express).to(ExpressMvc);
-    kernel.bind<Router>(router).to(Router);
+    kernel.bind<Router>(router).to(Router).inSingletonScope();
     debug("Bound Interface and Router");
     // Handle registering Controllers
     controllers.forEach(controller => {
-        debug(`Binding controller (${GetControllerName(controller)})`);
-        kernel.bind<mvcController>(GetControllerName(controller)).to(controller);
-        debug(`Bound controller (${GetControllerName(controller)})`);
+        debug(`Binding controller (${controller.name})`);
+        kernel.bind<mvcController>(controller).to(controller);
+        debug(`Bound controller (${controller.name})})`);
     });
     debug('Finished binding controllers...');
     return kernel.get<ExpressMvc>(express) as ExpressMvc;
@@ -33,7 +56,6 @@ export function expressMvc(...controllers: any[]): ExpressMvc {
 @injectable()
 export class ExpressMvc {
     running: boolean;
-    server: e.Express;
 
     busboy = { 
         allowUpload: false,
@@ -43,9 +65,8 @@ export class ExpressMvc {
     constructor( @inject(router) public router: Router) {
         router.kernel = kernel;
 
-        this.server = e();
-        this.server.set('views', '../views');
-        this.server.set('view engine', 'pug');
+        server.set('views', '../views');
+        server.set('view engine', 'pug');
     }
 
     /**
@@ -115,8 +136,8 @@ export class ExpressMvc {
             throw new Error("Set view engine before server is started.");
         }
 
-        this.server.set('views', directory);
-        this.server.set('view engine', engine);
+        server.set('views', directory);
+        server.set('view engine', engine);
         return this;
     }
 
@@ -127,7 +148,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     setFavicon(path: string): ExpressMvc {
-        this.server.use(favicon(path));
+        server.use(favicon(path));
         return this;
     }
 
@@ -138,7 +159,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     addStatic(path: string): ExpressMvc {
-        this.server.use(e.static(path));
+        server.use(e.static(path));
         return this;
     }
 
@@ -152,19 +173,15 @@ export class ExpressMvc {
     listen(port?: number, host?: string): ExpressMvc {
         port = port || 3000;
 
-        extend(this.server, this.busboy);
+        extend(server, this.busboy);
 
         if (this.busboy.allowUpload) {
             console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
         } else {
-            console.log('File uploads are not premitted.');
+            console.log('File uploads are not permitted.');
         }
-        
-        this.server.all("/:one?/:two?/:three?/:four?/:five?/:six?/:seven?/:eight?/:nine?/:ten?", (req, res) => {
-            this.router.route(req, res);
-        });
 
-        this.server.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
         })

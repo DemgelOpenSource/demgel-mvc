@@ -11,25 +11,17 @@ export class RedirectResult extends Result {
         if (typeof controller === 'string') {
             this.controller = controller;
         } else {
-            this.controller = GetControllerName(controller);
+            this.controller = GetControllerName(controller) || "";
         }
     }
 
     handle(res: Response) {
-        var url = "";
-        if (this.controller === 'index') {
-            url = "";
-        } else {
-            url = `/${this.controller}`;
-        }
+        var url = `${this.controller}/`;
 
         if (this.method) {
-            url = `${url}/${this.method}`;
+            url = `${url}${this.method}`;
         }
-        console.log(url);
-        if (url === "") {
-            url = "/";
-        }
+
         res.redirect(url);
     }
 }

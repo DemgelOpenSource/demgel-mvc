@@ -1,9 +1,8 @@
 import { IKernel } from "inversify";
-import { mvcController } from "./controllers/mvcController";
 import { Request, Response } from "express";
+import "reflect-metadata";
 export declare class Router {
     kernel: IKernel;
     constructor();
-    route(req: Request, res: Response): void;
-    getController(controller: string): Promise<mvcController>;
+    doRoute(target: any, method: string, req: Request, res: Response): void;
 }
