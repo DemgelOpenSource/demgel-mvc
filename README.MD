@@ -1,4 +1,7 @@
+[![Gitter](https://badges.gitter.im/DemgelOpenSource/Home.svg)](https://gitter.im/DemgelOpenSource/Home?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 # MVC with ExpressJS
+I am looking for a good Name for this project... if you feel like offering open an issue.
+
 Simply a wrapper for expressjs. Use of Models/Views/Controllers in a simple to setup environment. Uses Inversify for DI.
 
 This project is not Ready for use in any way... This is still pre-alpha
