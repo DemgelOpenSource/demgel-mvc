@@ -19,20 +19,18 @@ export class TestController extends mvcController {
     @HttpGet()
     @methodLogger()
     someFunction(): View {
-        //console.log(this.context.request.body);
         return new View(this, "someFunction", { pageTitle: 'someFuntion' });
     }
 
-    @HttpGet({route: 'test', parameters: ':test/:test2?'})
+    @HttpGet({route: '/test', parameters: '/:test/:test2?'})
     anotherFunction(test: string, test2?: string) {
         console.log("VALUES: ", test, test2);
-        return new View(this, "someFunction", { pageTitle: 'anotherFunction' });
-        //return new RedirectResult(TestController.name, "some-function");
+        return new RedirectResult(TestController, "some-function");
     }
 
-    // @HttpPost(true)
-    // failFunction(): JsonResult {
-    //     console.log(this.context.request.body);
-    //     return new JsonResult({ test: "Hello", property: "Test" });
-    // }
+    @HttpPost()
+    failFunction(): JsonResult {
+        console.log(this.context.request.body);
+        return new JsonResult({ test: "Hello", property: "Test" });
+    }
 }

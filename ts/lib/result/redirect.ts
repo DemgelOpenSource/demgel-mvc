@@ -1,22 +1,26 @@
 import {Result} from "./result";
 import {Response} from "express";
-import {mvcController} from "../controllers/mvcController";
-//import {GetControllerName} from "../decorators/controller";
+import {RouteBuilder} from "../router";
 
 export class RedirectResult extends Result {
     controller: string;
 
-    constructor(controller: string, private method?: string, options?: Object) {
+    constructor(controller: any | string, private method?: string, options?: Object) {
         super();
-        //if (typeof controller === 'string') {
-            this.controller = controller;
-        //} else {
-        //    this.controller = GetControllerName(controller) || "";
-        //}
+        if (typeof controller === 'string') {
+            this.controller = controller + "/";
+        } else {
+            let cont = RouteBuilder.instance.getRoute(controller);
+            if (cont.path === "/") {
+                this.controller = cont.path;
+            } else {
+                this.controller = cont.path + "/";
+            }    
+        }
     }
 
     handle(res: Response) {
-        var url = `${this.controller}/`;
+        var url = this.controller;
 
         if (this.method) {
             url = `${url}${this.method}`;

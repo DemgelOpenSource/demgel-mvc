@@ -2,13 +2,12 @@ import * as e from "express";
 import {extend} from "express-busboy";
 import {Kernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
-// import {GetControllerName} from './decorators/controller';
 import {RouteBuilder} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
 import {IOptions} from "./options";
-import * as bodyParser from "body-parser";
 import "reflect-metadata";
+import {Context} from "./context";
 
 export const express = Symbol("express-mvc");
 export const router = Symbol("router");
@@ -28,7 +27,6 @@ export var kernel = new Kernel();
 RouteBuilder.instance.kernel = kernel;
 
 const debug = _debug('express-mvc');
-
 const server = e();
 
 export function getServer(): e.Express {
@@ -42,8 +40,6 @@ export function getServer(): e.Express {
  * @return {ExpressMvc}
  */
 export function expressMvc(...controllers: any[]): ExpressMvc {
-    // kernel.bind<ExpressMvc>(express).to(ExpressMvc);
-    // kernel.bind<Router>(router).to(Router).inSingletonScope();
     debug("Starting ExpressMVC");
     // Handle registering Controllers
     controllers.forEach(controller => {
@@ -65,7 +61,11 @@ export class ExpressMvc {
     };
 
     constructor() {
-        // router.kernel = kernel;
+        server.use((req, res, next) => {
+            debug("adding context");
+            (<any>req).context = new Context(req, res);
+            next();
+        });
 
         server.set('views', '../views');
         server.set('view engine', 'pug');
@@ -186,7 +186,6 @@ export class ExpressMvc {
         let routes = RouteBuilder.instance.build();
         
         for (let route of routes) {
-            console.log("ROUTE ", route);
             let middleware = [];
             route.middleware.forEach(mw => {
                 middleware.push(mw);

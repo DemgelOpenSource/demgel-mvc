@@ -1,6 +1,6 @@
 import { IKernel } from "inversify";
 import { AllowedMethods } from "./express-mvc";
-import { Request, Response, RequestHandler, Router } from "express";
+import { RequestHandler, Router } from "express";
 import "reflect-metadata";
 export declare class RouteBuilder implements IRouteBuilder {
     private static routeInstance;
@@ -9,11 +9,11 @@ export declare class RouteBuilder implements IRouteBuilder {
     constructor();
     kernel: IKernel;
     static instance: IRouteBuilder;
-    doRoute(target: any, method: string, req: Request, res: Response): void;
     registerController(path: string, target: any): void;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string): void;
+    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
     registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
+    getRoute(controller: any): IContainerRoute;
     build(): IterableIterator<IContainerRoute>;
     private newController();
     private newControllerMethod();
@@ -28,6 +28,7 @@ export interface IControllerMethod {
     middleware: Map<Priority, RequestHandler[]>;
     path: string;
     method: AllowedMethods;
+    parameters: string;
 }
 export declare enum Priority {
     Authorize = 0,
@@ -37,7 +38,8 @@ export declare enum Priority {
 }
 export interface IRouteBuilder {
     kernel: IKernel;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string): void;
+    getRoute(controller: any | string): IContainerRoute;
+    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerController(path: string, target: any): void;
     registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
     registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;

@@ -29,23 +29,9 @@ export class RouteBuilder implements IRouteBuilder {
         }
         return this.routeInstance;
     }
-
-    doRoute(target: any, method: string, req: Request, res: Response) {
-        let cont: mvcController = this.kernel.get<mvcController>(target);
-        debug("Got Controller", cont);
-        let args: Array<any> = [];
-        let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", cont, method);
-        debug("method parameters", methodParams);
-        Object.keys(req.params).forEach((param) => {
-            args.push(req.params[param]);
-        });
-        cont.context = new Context(req, res);
-        let result: Result = cont[method].apply(cont, args);
-        result.handle(res);
-    }
-
+    
     registerController(path: string, target: any) {
-        debug("registering controller", target);
+        debug("registering controller", target.name);
         if (!this.routes.has(target)) {
             this.routes.set(target, this.newController());
         }
@@ -54,7 +40,7 @@ export class RouteBuilder implements IRouteBuilder {
         container.path = path;
     }
 
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string) {
+    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string) {
         debug("registering handler", targetMethod);
         if (!this.routes.has(target.constructor)) {
             debug("setting container");
@@ -70,6 +56,7 @@ export class RouteBuilder implements IRouteBuilder {
         let method = container.methods.get(targetMethod);
         method.method = httpMethod;
         method.path = path;
+        method.parameters = parameters;
     }
 
     registerClassMiddleware(target: any, middleware: RequestHandler, priority: Priority = Priority.Normal) {
@@ -107,6 +94,10 @@ export class RouteBuilder implements IRouteBuilder {
 
     }
 
+    getRoute(controller: any): IContainerRoute {
+        return this.routes.get(controller);
+    }   
+    
     build(): IterableIterator<IContainerRoute> {
         // First we get all controllers
         this.routes.forEach((route, idx) => {
@@ -114,15 +105,23 @@ export class RouteBuilder implements IRouteBuilder {
             route.methods.forEach((method, targetMethod) => {
                 let registerHandlerOnRouter = <IRouterMatcher<Router>>route.router[AllowedMethods[method.method].toLowerCase()];
                 let handler = (req: Request, res: Response, next: any) => {
-                    console.log("is this happening");
-                    let result: Result = this.kernelInstance.get(idx)[targetMethod]();
+                    let cont: mvcController = this.kernelInstance.get(idx) as mvcController;
+                    cont.context = (<any>req).context || new Context(req, res);
+
+                    let args: Array<any> = [];
+                    let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", cont, targetMethod);
+                    debug("method parameters", methodParams);
+                    Object.keys(req.params).forEach((param) => {
+                        args.push(req.params[param]);
+                    });
+                    let result: Result = cont[targetMethod].apply(cont, args);
                     result.handle(res);
                 };
                 let mw = [];
                 method.middleware.forEach(middleware => {
                     mw.push(middleware);
                 })
-                registerHandlerOnRouter.apply(route.router, ["/" + method.path, ...mw, handler]);
+                registerHandlerOnRouter.apply(route.router, [method.path + method.parameters, ...mw, handler]);
             });
         });
         
@@ -142,7 +141,8 @@ export class RouteBuilder implements IRouteBuilder {
         return {
             middleware: new Map < Priority, RequestHandler[]>(),
             path: undefined,
-            method: undefined
+            method: undefined,
+            parameters: ""
         }
     }
 }
@@ -158,6 +158,7 @@ export interface IControllerMethod {
     middleware: Map<Priority, RequestHandler[]>;
     path: string;
     method: AllowedMethods;
+    parameters: string;
 }
 
 export enum Priority {
@@ -169,7 +170,8 @@ export enum Priority {
 
 export interface IRouteBuilder {
     kernel: IKernel;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string): void;
+    getRoute(controller: any | string): IContainerRoute;
+    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerController(path: string, target: any): void;
     registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
     registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
