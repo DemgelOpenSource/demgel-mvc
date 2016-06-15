@@ -39,7 +39,50 @@ Under the hood, inversify is injecting and creating the Controllers as needed. E
 ## MiddleWare
 Middleware can still be used with express, actually you can still use express as before as you are able to access the server directly. But with express-mvc you can use decorators to handle many situations where you required middleware before.
 
-Examples to come.
+Method and Class decorators
+
+``` typescript
+import {RouteBuilder} from "express-mvc";
+
+// Class decorator (notice that only target is required)
+export function logger() {
+    return target => {
+        RouteBuilder.instance.registerClassMiddleware(target, (res, req, next) => {
+            console.log("Logging from class middleware");
+            next();
+        });
+    }
+}
+
+// Method decorator (notice the target, propertyKey and descriptor)
+export function methodLogger() {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        RouteBuilder.instance.registerMethodMiddleware(target, propertyKey, (res, req, next) => {
+            console.log("Loggin from method middleware");
+            next();
+        });
+    }
+}
+```
+
+Using the decorators
+``` typescript
+import {HttpGet, Controller, logger, methodLogger, mvcController} from "express-mvc";
+
+@Controller("/")
+@logger()
+export class IndexController extends mvcController {
+    @HttpGet()
+    @methodLogger()
+    aGetFunction(): View {
+        return new View(this, "index");
+    }
+}
+```
+
+Everytime the controller is called it will log Logging from class middleware.
+
+While everytime aGetFunction is called it will log Loggin from method middleware, is we made a different method, and didn't add methodLogger, it would not call it for that function, but the logger on the class would still fire.
 
 ## Configuration
 Currently in these early stages there isn't much to configure directly with express-mvc. There will be options to allow you to set the template engine, etc, but most of this can be set directly on the express engine itself if you so choose.
