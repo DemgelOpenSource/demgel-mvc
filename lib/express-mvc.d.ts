@@ -1,6 +1,5 @@
 import * as e from "express";
 import { INewable } from 'inversify';
-import { Router } from "./router";
 import "reflect-metadata";
 export declare const express: Symbol;
 export declare const router: Symbol;
@@ -24,13 +23,12 @@ export declare function getServer(): e.Express;
  */
 export declare function expressMvc(...controllers: any[]): ExpressMvc;
 export declare class ExpressMvc {
-    router: Router;
     running: boolean;
     busboy: {
         allowUpload: boolean;
         uploadPath: string;
     };
-    constructor(router: Router);
+    constructor();
     /**
      * Add a Transient service to DI
      *

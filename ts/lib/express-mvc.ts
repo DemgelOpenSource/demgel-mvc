@@ -3,7 +3,7 @@ import {extend} from "express-busboy";
 import {Kernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
 // import {GetControllerName} from './decorators/controller';
-import {Router} from "./router";
+import {RouteBuilder} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
 import {IOptions} from "./options";
@@ -25,6 +25,8 @@ export enum AllowedMethods {
  * The DI kernel is documented on inversify's website
  */
 export var kernel = new Kernel();
+RouteBuilder.instance.kernel = kernel;
+
 const debug = _debug('express-mvc');
 
 const server = e();
@@ -40,9 +42,9 @@ export function getServer(): e.Express {
  * @return {ExpressMvc}
  */
 export function expressMvc(...controllers: any[]): ExpressMvc {
-    kernel.bind<ExpressMvc>(express).to(ExpressMvc);
-    kernel.bind<Router>(router).to(Router).inSingletonScope();
-    debug("Bound Interface and Router");
+    // kernel.bind<ExpressMvc>(express).to(ExpressMvc);
+    // kernel.bind<Router>(router).to(Router).inSingletonScope();
+    debug("Starting ExpressMVC");
     // Handle registering Controllers
     controllers.forEach(controller => {
         debug(`Binding controller (${controller.name})`);
@@ -62,8 +64,8 @@ export class ExpressMvc {
         uploadPath: "./uploads"
     };
 
-    constructor( @inject(router) public router: Router) {
-        router.kernel = kernel;
+    constructor() {
+        // router.kernel = kernel;
 
         server.set('views', '../views');
         server.set('view engine', 'pug');
@@ -181,6 +183,17 @@ export class ExpressMvc {
             console.log('File uploads are not permitted.');
         }
 
+        let routes = RouteBuilder.instance.build();
+        
+        for (let route of routes) {
+            console.log("ROUTE ", route);
+            let middleware = [];
+            route.middleware.forEach(mw => {
+                middleware.push(mw);
+            });
+            server.use(route.path, ...middleware, route.router); 
+        }
+        
         server.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
@@ -189,3 +202,5 @@ export class ExpressMvc {
         return this;
     }
 }
+
+kernel.bind<ExpressMvc>(express).to(ExpressMvc);
