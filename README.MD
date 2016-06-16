@@ -10,7 +10,7 @@ There are still no Typings for this, using this will be very difficult if even p
 ## Examples
 ### A Controller
 ``` typescript
-import {mvcController, View} from 'express-mvc';
+import {mvcController, View} from 'demgel-mvc';
 import {inject} from 'inversify';
 
 @Controller('example')
@@ -42,7 +42,7 @@ Middleware can still be used with express, actually you can still use express as
 Method and Class decorators
 
 ``` typescript
-import {getRouter} from "express-mvc;
+import {getRouter} from "demgel-mvc;
 
 // Class decorator (notice that only target is required)
 export function logger() {
@@ -67,7 +67,7 @@ export function methodLogger() {
 
 Using the decorators
 ``` typescript
-import {HttpGet, Controller, logger, methodLogger, mvcController} from "express-mvc";
+import {HttpGet, Controller, logger, methodLogger, mvcController} from "demgel-mvc";
 
 @Controller("/")
 @logger()
@@ -123,7 +123,7 @@ server.listen();
 Write some controllers
 
 ``` typescript
-import {expressMvc} from "express-mvc";
+import {expressMvc} from "demgel-mvc";
 import {SomeController, AnotherController} from "./controllers";
 
 // You have to pass the controllers or array of controllers to expressMvc

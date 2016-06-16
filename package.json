@@ -1,7 +1,7 @@
 {
-  "name": "express-mvc",
+  "name": "demgel-mvc",
   "version": "0.0.1",
-  "description": "mvc framework using express",
+  "description": "mvc framework using express and inversify",
   "main": "lib/index",
   "typings": "lib/index",
   "scripts": {
