@@ -19,15 +19,15 @@ export class ExampleController extends mvcController {
         super();
     }
 
-    // Set true on HttpGet to make essentially an index
-    @HttpGet(true)
+    // If no route is set, it will use the function name for the route (some-function)
+    @HttpGet()
     someGetFunction() {
         // Do Some stuff
         return new View(this, 'aViewName', {viewparams: "value"});
     }
 
     // This will make the url be http://example.com/example/post-url/someurlvalue
-    @HttpPost({route: 'post-url', parameters: ':/someurlvalue'})
+    @HttpPost({route: 'post-url', parameters: ':someurlvalue'})
     somePostFunction(param: someurlvalue) {
         return JsonResult({object: values});
     }
@@ -42,12 +42,12 @@ Middleware can still be used with express, actually you can still use express as
 Method and Class decorators
 
 ``` typescript
-import {RouteBuilder} from "express-mvc";
+import {getRouter} from "express-mvc;
 
 // Class decorator (notice that only target is required)
 export function logger() {
     return target => {
-        RouteBuilder.instance.registerClassMiddleware(target, (res, req, next) => {
+        getRouter().registerClassMiddleware(target, (res, req, next) => {
             console.log("Logging from class middleware");
             next();
         });
@@ -57,7 +57,7 @@ export function logger() {
 // Method decorator (notice the target, propertyKey and descriptor)
 export function methodLogger() {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-        RouteBuilder.instance.registerMethodMiddleware(target, propertyKey, (res, req, next) => {
+        getRouter().registerMethodMiddleware(target, propertyKey, (res, req, next) => {
             console.log("Loggin from method middleware");
             next();
         });

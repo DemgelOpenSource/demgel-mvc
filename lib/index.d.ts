@@ -7,3 +7,4 @@ export * from "./context";
 export * from "./router";
 export * from "./options";
 export * from "./services/service";
+export * from "./setup";

@@ -14,12 +14,10 @@ const debug = _debug("expressify:router");
 
 @injectable()
 export class RouteBuilder {
-    // private static routeInstance: IRouteBuilder;
     kernelInstance: IKernel;
     routes: Map<string, IContainerRoute> = new Map<string, IContainerRoute>();
-    
-    constructor(kernel: IKernel) {
-        this.kernelInstance = kernel;
+
+    constructor() {
     }
     
     registerController(path: string, target: any) {
@@ -112,10 +110,9 @@ export class RouteBuilder {
                     let result: Result = cont[targetMethod].apply(cont, args);
                     result.handle(res);
                 };
-                let mw = [];
-                method.middleware.forEach(middleware => {
-                    mw.push(middleware);
-                })
+
+                let mw = this.sortMiddleware(method.middleware);
+                
                 registerHandlerOnRouter.apply(route.router, [method.path + method.parameters, ...mw, handler]);
             });
         });
@@ -139,6 +136,23 @@ export class RouteBuilder {
             method: undefined,
             parameters: ""
         }
+    }
+
+    sortMiddleware(middleware: Map<Priority, RequestHandler[]>) {
+        let mw = [];
+        if (middleware.has(Priority.Authorize)) {
+            mw.push(middleware.get(Priority.Authorize));
+        }
+        if (middleware.has(Priority.Pre)) {
+            mw.push(middleware.get(Priority.Pre));
+        }
+        if (middleware.has(Priority.Normal)) {
+            mw.push(middleware.get(Priority.Normal));
+        }
+        if (middleware.has(Priority.Post)) {
+            mw.push(middleware.get(Priority.Post));
+        }
+        return mw;
     }
 }
 

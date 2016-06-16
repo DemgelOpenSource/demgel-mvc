@@ -5,7 +5,7 @@ import "reflect-metadata";
 export declare class RouteBuilder {
     kernelInstance: IKernel;
     routes: Map<string, IContainerRoute>;
-    constructor(kernel: IKernel);
+    constructor();
     registerController(path: string, target: any): void;
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
@@ -14,6 +14,7 @@ export declare class RouteBuilder {
     build(): IterableIterator<IContainerRoute>;
     private newController();
     private newControllerMethod();
+    sortMiddleware(middleware: Map<Priority, RequestHandler[]>): any[];
 }
 export interface IContainerRoute {
     middleware: Map<Priority, RequestHandler[]>;

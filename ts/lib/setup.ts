@@ -2,7 +2,6 @@ import {IKernel, Kernel, makePropertyInjectDecorator} from "inversify";
 import {ExpressMvc} from "./express-mvc";
 import {RouteBuilder} from "./router";
 import {mvcController} from "./controllers/mvcController";
-import {Test} from "./test";
 import * as _debug from "debug";
 
 var debug = _debug("expressify:setup");
@@ -16,8 +15,14 @@ var k: IKernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
 export var kernel = k;
 
-k.bind<RouteBuilder>(RouteBuilder).toConstantValue(new RouteBuilder(kernel));
-k.bind<ExpressMvc>(ExpressMvc).to(ExpressMvc);
+k.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {
+    router.kernelInstance = kernel;
+    return router;
+});
+k.bind<ExpressMvc>(ExpressMvc).to(ExpressMvc).onActivation((context, expressify) => {
+    expressify.kernel = kernel;
+    return expressify;
+});
 
 /**
  * The main function called to create a ExpressMvc object, initialized the DI and returns a useable ExpressMvc object
@@ -35,6 +40,10 @@ export function expressMvc(...controllers: any[]): ExpressMvc {
     });
     debug('Finished binding controllers...');
     let mvc = kernel.get<ExpressMvc>(ExpressMvc) as ExpressMvc;
-    mvc.kernel = kernel;
+    // mvc.kernel = kernel;
     return mvc;
+}
+
+export function getRouter(): RouteBuilder {
+    return kernel.get<RouteBuilder>(RouteBuilder);
 }

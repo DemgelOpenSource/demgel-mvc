@@ -1,5 +1,6 @@
 import { IKernel } from "inversify";
 import { ExpressMvc } from "./express-mvc";
+import { RouteBuilder } from "./router";
 export declare const SYMBOLS: {
     express: string;
     router: string;
@@ -13,3 +14,4 @@ export declare var kernel: IKernel;
  * @return {ExpressMvc}
  */
 export declare function expressMvc(...controllers: any[]): ExpressMvc;
+export declare function getRouter(): RouteBuilder;

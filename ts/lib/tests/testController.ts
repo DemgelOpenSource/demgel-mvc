@@ -25,7 +25,7 @@ export class TestController extends mvcController {
     @HttpGet({route: '/test', parameters: '/:test/:test2?'})
     anotherFunction(test: string, test2?: string) {
         console.log("VALUES: ", test, test2);
-        return new RedirectResult(TestController, "some-function");
+        return new RedirectResult(TestController);
     }
 
     @HttpPost()

@@ -1,11 +1,9 @@
 import * as e from "express";
 import {extend} from "express-busboy";
 import {IKernel, injectable, inject, INewable} from 'inversify';
-import {mvcController} from './controllers/mvcController';
 import {RouteBuilder} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
-import {IOptions} from "./options";
 import "reflect-metadata";
 import {Context} from "./context";
 import {kernel, SYMBOLS} from "./setup";
@@ -54,8 +52,7 @@ export class ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
-
-// NEEDS TO BE FIXED        
+       
         this.kernel.bind<T>(identifier).to(service);
         return this;
     }
@@ -160,10 +157,7 @@ export class ExpressMvc {
         let routes = this.routerBuilder.build();
         
         for (let route of routes) {
-            let middleware = [];
-            route.middleware.forEach(mw => {
-                middleware.push(mw);
-            });
+            let middleware = this.routerBuilder.sortMiddleware(route.middleware);
             this.server.use(route.path, ...middleware, route.router); 
         }
         
