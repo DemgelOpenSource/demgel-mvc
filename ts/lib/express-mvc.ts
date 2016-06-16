@@ -6,7 +6,6 @@ import * as _debug from "debug";
 import * as favicon from "serve-favicon";
 import "reflect-metadata";
 import {Context} from "./context";
-import {kernel} from "./setup";
 import {DefaultOptions} from "./options/defaults";
 
 export enum AllowedMethods {
@@ -160,7 +159,9 @@ export class ExpressMvc {
         this.server.set('view engine', this.defaults.views.engine);
         
         // Favicon Setup
-        this.server.use(favicon(this.defaults.favicon.path));
+        if (this.defaults.favicon.path) {
+            this.server.use(favicon(this.defaults.favicon.path));
+        }    
         
         // Static Files setup
         this.defaults.staticFiles.paths.forEach(path => {

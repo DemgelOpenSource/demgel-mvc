@@ -9,15 +9,15 @@ var debug = _debug("expressify:setup");
 
 var k: IKernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
-export var kernel = k;
+// export var kernel = k;
 
 k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());
 k.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {
-    router.kernelInstance = kernel;
+    router.kernelInstance = k;
     return router;
 });
 k.bind<ExpressMvc>(ExpressMvc).to(ExpressMvc).onActivation((context, expressify) => {
-    expressify.kernel = kernel;
+    expressify.kernel = k;
     return expressify;
 });
 
@@ -32,15 +32,13 @@ export function expressMvc(...controllers: any[]): ExpressMvc {
     // Handle registering Controllers
     controllers.forEach(controller => {
         debug(`Binding controller (${controller.name})`);
-        kernel.bind<mvcController>(controller).to(controller);
-        debug(`Bound controller (${controller.name})})`);
+        k.bind<mvcController>(controller).to(controller);
+        debug(`Bound controller (${controller.name})`);
     });
     debug('Finished binding controllers...');
-    let mvc = kernel.get<ExpressMvc>(ExpressMvc) as ExpressMvc;
-    // mvc.kernel = kernel;
-    return mvc;
+    return k.get<ExpressMvc>(ExpressMvc);
 }
 
 export function getRouter(): RouteBuilder {
-    return kernel.get<RouteBuilder>(RouteBuilder);
+    return k.get<RouteBuilder>(RouteBuilder);
 }

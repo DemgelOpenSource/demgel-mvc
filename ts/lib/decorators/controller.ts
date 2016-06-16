@@ -1,6 +1,6 @@
 import {RouteBuilder} from "../router";
 import {RequestHandler} from "express";
-import {kernel, getRouter} from "../setup";
+import {getRouter} from "../setup";
 
 export function Controller(path: string) {
     return target => {

@@ -7,7 +7,6 @@ import {ErrorResult} from "./result/error";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
-import {kernel} from "./setup";
 import "reflect-metadata";
 
 const debug = _debug("expressify:router");
@@ -51,9 +50,9 @@ export class RouteBuilder {
     }
 
     registerClassMiddleware(target: any, middleware: RequestHandler, priority: Priority = Priority.Normal) {
-        debug("registering class middleware", target)
+        debug("registering class middleware", target.name)
         if (!this.routes.has(target)) {
-            debug("setting container", target);
+            debug("setting container", target.name);
             this.routes.set(target, this.newController());
         }
 
