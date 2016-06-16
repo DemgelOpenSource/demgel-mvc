@@ -109,12 +109,12 @@ Currently in these early stages there isn't much to configure directly with expr
 The current direction is to create fluent functions to set common settings.
 
 ``` typescript
-    server.setFavicon("/some/path/to/favicon.ico")
-          .setViewEngine("pug", "../views");
+server.setFavicon("/some/path/to/favicon.ico")
+        .setViewEngine("pug", "../views");
 
-    useMongo(...); // This would be a seperate package that can be used to extend express-mvc
+useMongo(...); // This would be a seperate package that can be used to extend express-mvc
 
-    server.listen();
+server.listen();
 ```
 ## Setup
 
