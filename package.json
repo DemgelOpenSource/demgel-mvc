@@ -10,16 +10,13 @@
   "author": "tenowg <Craig Russell>",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "*",
     "express": "^4.13.4",
     "express-busboy": "^2.5.0",
     "inversify": "^2.0.0-beta.8",
     "inversify-dts": "^1.0.5",
     "lodash": "^4.13.1",
-    "mongodb": "^2.1.18",
     "pug": "^2.0.0-beta2",
     "reflect-metadata": "^0.1.3",
-    "rxjs": "^5.0.0-beta.8",
     "serve-favicon": "^2.3.0",
     "to-slug-case": "^1.0.0"
   },

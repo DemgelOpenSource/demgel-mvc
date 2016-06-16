@@ -13,7 +13,7 @@ There are still no Typings for this, using this will be very difficult if even p
 import {mvcController, View} from 'express-mvc';
 import {inject} from 'inversify';
 
-@Controller({baseRoute: 'example'})
+@Controller('example')
 export class ExampleController extends mvcController {
     constructor(@inject("SomeService") service: SomeService) {
         super();
@@ -50,7 +50,7 @@ export function logger() {
         getRouter().registerClassMiddleware(target, (res, req, next) => {
             console.log("Logging from class middleware");
             next();
-        });
+        }, Priority.Normal);
     }
 }
 
@@ -60,7 +60,7 @@ export function methodLogger() {
         getRouter().registerMethodMiddleware(target, propertyKey, (res, req, next) => {
             console.log("Loggin from method middleware");
             next();
-        });
+        }, Priority.Authorize);
     }
 }
 ```
@@ -83,6 +83,25 @@ export class IndexController extends mvcController {
 Everytime the controller is called it will log Logging from class middleware.
 
 While everytime aGetFunction is called it will log Loggin from method middleware, is we made a different method, and didn't add methodLogger, it would not call it for that function, but the logger on the class would still fire.
+
+### Middleware with priority
+It is important to make sure the middleware runs when it is supposed too. Authorize should run first, and should error first should a Authorization fail.
+
+### Adding Properties to Context in middleware
+Passing values from middleware is easy to handle, anything can be injected into a special `req.context` object that will be made available in the Controllers `context` property.
+
+I use the `extras` on `context` so Typescript doesn't complain to much.
+``` typescript
+export function middlewareDec() {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        getRouter().registerMethodMiddleware(target, propertyKey, (res, req, next) => {
+            req.context.extras["somespecialvalue"] = "a special value";
+        });
+    }
+}
+```
+
+Thus `somespecialvalue` is added to the context in the controller on the `this.context.extras['somespecialvalue']`.
 
 ## Configuration
 Currently in these early stages there isn't much to configure directly with express-mvc. There will be options to allow you to set the template engine, etc, but most of this can be set directly on the express engine itself if you so choose.
@@ -112,3 +131,9 @@ let server = expressMvc(SomeController, AnotherController);
 server.addTransient<SomeService>("SomeService", SomeService);
 server.listen(3000);
 ```
+
+## Special Thanks
+@remojansen - for working so hard on inversify
+
+## Using
+[![(Inversify](https://raw.githubusercontent.com/inversify/inversify.github.io/master/img/favicon/ms-icon-70x70.png)](http://inversify.io/)
