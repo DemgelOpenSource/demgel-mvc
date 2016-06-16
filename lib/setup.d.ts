@@ -1,10 +1,6 @@
 import { IKernel } from "inversify";
 import { ExpressMvc } from "./express-mvc";
 import { RouteBuilder } from "./router";
-export declare const SYMBOLS: {
-    express: string;
-    router: string;
-};
 export declare var pInject: (serviceIdentifier: string | Symbol | inversify.INewable<any>) => (proto: any, key: string) => void;
 export declare var kernel: IKernel;
 /**

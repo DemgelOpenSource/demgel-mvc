@@ -5,6 +5,7 @@ export * from './controllers/controller';
 export * from "./decorators/decorators";
 export * from "./context";
 export * from "./router";
-export * from "./options";
+export * from "./options/defaults";
+export * from "./options/options";
 export * from "./services/service";
 export * from "./setup";

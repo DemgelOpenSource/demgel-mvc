@@ -6,7 +6,8 @@ import * as _debug from "debug";
 import * as favicon from "serve-favicon";
 import "reflect-metadata";
 import {Context} from "./context";
-import {kernel, SYMBOLS} from "./setup";
+import {kernel} from "./setup";
+import {DefaultOptions} from "./options/defaults";
 
 export enum AllowedMethods {
     GET,
@@ -29,16 +30,16 @@ export class ExpressMvc {
     server: e.Application;
     kernel: IKernel;
 
-    constructor( @inject(RouteBuilder) private routerBuilder: RouteBuilder) {
+    constructor(
+        @inject(RouteBuilder) private routerBuilder: RouteBuilder,
+        @inject(DefaultOptions) private defaults: DefaultOptions
+    ) {
         this.server = e();
         this.server.use((req, res, next) => {
             debug("adding context");
             (<any>req).context = new Context(req, res);
             next();
         });
-
-        this.server.set('views', '../views');
-        this.server.set('view engine', 'pug');
     }
 
     /**
@@ -91,8 +92,8 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     allowUpload(path?: string): ExpressMvc {
-        this.busboy.allowUpload = true;
-        this.busboy.uploadPath = path || this.busboy.uploadPath;
+        this.defaults.busboy.allowUpload = true;
+        this.defaults.busboy.uploadPath = path || this.busboy.uploadPath;
         return this;
     }   
     
@@ -103,13 +104,13 @@ export class ExpressMvc {
      * @param {string} directory The base directory that contains the views
      * @return {ExpressMvc}
      */
-    setViewEngine(engine: string, directory: string): ExpressMvc {
+    setViewEngine(directory: string, engine?: string): ExpressMvc {
         if (this.running) {
             throw new Error("Set view engine before server is started.");
         }
 
-        this.server.set('views', directory);
-        this.server.set('view engine', engine);
+        this.defaults.views.engine = engine || this.defaults.views.engine;
+        this.defaults.views.path = directory;
         return this;
     }
 
@@ -120,7 +121,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     setFavicon(path: string): ExpressMvc {
-        this.server.use(favicon(path));
+        this.defaults.favicon.path = path;
         return this;
     }
 
@@ -130,8 +131,8 @@ export class ExpressMvc {
      * @param {string} path The directory to serve static files from, defaults to ./public
      * @return {ExpressMvc}
      */
-    addStatic(path: string): ExpressMvc {
-        this.server.use(e.static(path));
+    addStaticFilesPath(path: string): ExpressMvc {
+        this.defaults.staticFiles.paths.push(path);
         return this;
     }
 
@@ -145,15 +146,27 @@ export class ExpressMvc {
     listen(port?: number, host?: string): ExpressMvc {
         port = port || 3000;
 
-        extend(this.server, this.busboy);
+        // Busboy Setup        
+        extend(this.server, this.defaults.busboy);
 
-        if (this.busboy.allowUpload) {
+        if (this.defaults.busboy.allowUpload) {
             console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
         } else {
             console.log('File uploads are not permitted.');
         }
 
-        // let routes = RouteBuilder.instance.build();
+        // Setup Viewengine
+        this.server.set('views', this.defaults.views.path);
+        this.server.set('view engine', this.defaults.views.engine);
+        
+        // Favicon Setup
+        this.server.use(favicon(this.defaults.favicon.path));
+        
+        // Static Files setup
+        this.defaults.staticFiles.paths.forEach(path => {
+            this.server.use(e.static(path));
+        });
+        
         let routes = this.routerBuilder.build();
         
         for (let route of routes) {

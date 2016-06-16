@@ -2,6 +2,7 @@ import * as e from "express";
 import { IKernel, INewable } from 'inversify';
 import { RouteBuilder } from "./router";
 import "reflect-metadata";
+import { DefaultOptions } from "./options/defaults";
 export declare enum AllowedMethods {
     GET = 0,
     POST = 1,
@@ -10,6 +11,7 @@ export declare enum AllowedMethods {
 }
 export declare class ExpressMvc {
     private routerBuilder;
+    private defaults;
     running: boolean;
     busboy: {
         allowUpload: boolean;
@@ -17,7 +19,7 @@ export declare class ExpressMvc {
     };
     server: e.Application;
     kernel: IKernel;
-    constructor(routerBuilder: RouteBuilder);
+    constructor(routerBuilder: RouteBuilder, defaults: DefaultOptions);
     /**
      * Add a Transient service to DI
      *
@@ -55,7 +57,7 @@ export declare class ExpressMvc {
      * @param {string} directory The base directory that contains the views
      * @return {ExpressMvc}
      */
-    setViewEngine(engine: string, directory: string): ExpressMvc;
+    setViewEngine(directory: string, engine?: string): ExpressMvc;
     /**
      * Adds support for sending favicon.ico
      *
@@ -69,7 +71,7 @@ export declare class ExpressMvc {
      * @param {string} path The directory to serve static files from, defaults to ./public
      * @return {ExpressMvc}
      */
-    addStatic(path: string): ExpressMvc;
+    addStaticFilesPath(path: string): ExpressMvc;
     /**
      * Begin listening for connections, also finalizes many configuration options
      *

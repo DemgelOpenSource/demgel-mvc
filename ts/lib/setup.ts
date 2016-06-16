@@ -3,18 +3,15 @@ import {ExpressMvc} from "./express-mvc";
 import {RouteBuilder} from "./router";
 import {mvcController} from "./controllers/mvcController";
 import * as _debug from "debug";
+import {DefaultOptions} from "./options/defaults";
 
 var debug = _debug("expressify:setup");
-
-export const SYMBOLS = {
-    express: "express-mvc",
-    router: "router"
-}
 
 var k: IKernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
 export var kernel = k;
 
+k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());
 k.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {
     router.kernelInstance = kernel;
     return router;
