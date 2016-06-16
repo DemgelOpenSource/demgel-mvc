@@ -16,7 +16,7 @@ export class TestController extends mvcController {
         test.doSomething();
     }
 
-    @HttpGet()
+    @HttpGet({route: '/'})
     @methodLogger()
     someFunction(): View {
         return new View(this, "someFunction", { pageTitle: 'someFuntion' });

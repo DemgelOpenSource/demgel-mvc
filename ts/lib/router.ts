@@ -1,4 +1,4 @@
-import {IKernel} from "inversify";
+import {IKernel, injectable} from "inversify";
 import {mvcController} from "./controllers/mvcController";
 import {AllowedMethods} from "./express-mvc";
 import {Request, Response, RequestHandler, Router, IRouterMatcher} from "express";
@@ -7,32 +7,25 @@ import {ErrorResult} from "./result/error";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
+import {kernel} from "./setup";
 import "reflect-metadata";
 
-const debug = _debug("router");
+const debug = _debug("expressify:router");
 
-export class RouteBuilder implements IRouteBuilder {
-    private static routeInstance: IRouteBuilder;
-    private kernelInstance: IKernel;
-    private routes: Map<string, IContainerRoute> = new Map<string, IContainerRoute>();
+@injectable()
+export class RouteBuilder {
+    // private static routeInstance: IRouteBuilder;
+    kernelInstance: IKernel;
+    routes: Map<string, IContainerRoute> = new Map<string, IContainerRoute>();
     
-    constructor() {
-    }
-
-    set kernel(value: IKernel) {
-        this.kernelInstance = value;
-    }
-
-    static get instance(): IRouteBuilder {
-        if (!this.routeInstance) {
-            this.routeInstance = new RouteBuilder();
-        }
-        return this.routeInstance;
+    constructor(kernel: IKernel) {
+        this.kernelInstance = kernel;
     }
     
     registerController(path: string, target: any) {
         debug("registering controller", target.name);
         if (!this.routes.has(target)) {
+            debug("setting container");
             this.routes.set(target, this.newController());
         }
 
@@ -43,7 +36,7 @@ export class RouteBuilder implements IRouteBuilder {
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string) {
         debug("registering handler", targetMethod);
         if (!this.routes.has(target.constructor)) {
-            debug("setting container");
+            debug("setting container", target);
             this.routes.set(target.constructor, this.newController());
         }
 
@@ -60,7 +53,9 @@ export class RouteBuilder implements IRouteBuilder {
     }
 
     registerClassMiddleware(target: any, middleware: RequestHandler, priority: Priority = Priority.Normal) {
+        debug("registering class middleware", target)
         if (!this.routes.has(target)) {
+            debug("setting container", target);
             this.routes.set(target, this.newController());
         }
 

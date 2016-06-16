@@ -1,6 +1,6 @@
 import * as e from "express";
 import {extend} from "express-busboy";
-import {Kernel, injectable, inject, INewable} from 'inversify';
+import {IKernel, injectable, inject, INewable} from 'inversify';
 import {mvcController} from './controllers/mvcController';
 import {RouteBuilder} from "./router";
 import * as _debug from "debug";
@@ -8,9 +8,7 @@ import * as favicon from "serve-favicon";
 import {IOptions} from "./options";
 import "reflect-metadata";
 import {Context} from "./context";
-
-export const express = Symbol("express-mvc");
-export const router = Symbol("router");
+import {kernel, SYMBOLS} from "./setup";
 
 export enum AllowedMethods {
     GET,
@@ -19,37 +17,7 @@ export enum AllowedMethods {
     DELETE
 }
 
-/**
- * The DI kernel, should only be used with care and only if you know what you are doing.
- * The DI kernel is documented on inversify's website
- */
-export var kernel = new Kernel();
-RouteBuilder.instance.kernel = kernel;
-
-const debug = _debug('express-mvc');
-const server = e();
-
-export function getServer(): e.Express {
-    return server;
-}
-
-/**
- * The main function called to create a ExpressMvc object, initialized the DI and returns a useable ExpressMvc object
- *
- * @param {...mvcController} ...controllers The list of controllers to add to DI, all controllers used are required.
- * @return {ExpressMvc}
- */
-export function expressMvc(...controllers: any[]): ExpressMvc {
-    debug("Starting ExpressMVC");
-    // Handle registering Controllers
-    controllers.forEach(controller => {
-        debug(`Binding controller (${controller.name})`);
-        kernel.bind<mvcController>(controller).to(controller);
-        debug(`Bound controller (${controller.name})})`);
-    });
-    debug('Finished binding controllers...');
-    return kernel.get<ExpressMvc>(express) as ExpressMvc;
-}
+const debug = _debug('expressify:express-mvc');
 
 @injectable()
 export class ExpressMvc {
@@ -60,15 +28,19 @@ export class ExpressMvc {
         uploadPath: "./uploads"
     };
 
-    constructor() {
-        server.use((req, res, next) => {
+    server: e.Application;
+    kernel: IKernel;
+
+    constructor( @inject(RouteBuilder) private routerBuilder: RouteBuilder) {
+        this.server = e();
+        this.server.use((req, res, next) => {
             debug("adding context");
             (<any>req).context = new Context(req, res);
             next();
         });
 
-        server.set('views', '../views');
-        server.set('view engine', 'pug');
+        this.server.set('views', '../views');
+        this.server.set('view engine', 'pug');
     }
 
     /**
@@ -83,7 +55,8 @@ export class ExpressMvc {
             throw new Error("Add services before starting server.");
         }
 
-        kernel.bind<T>(identifier).to(service);
+// NEEDS TO BE FIXED        
+        this.kernel.bind<T>(identifier).to(service);
         return this;
     }
 
@@ -99,7 +72,7 @@ export class ExpressMvc {
             throw new Error("Add services before starting server.");
         }
 
-        kernel.bind<T>(identifier).to(service).inSingletonScope();
+        this.kernel.bind<T>(identifier).to(service).inSingletonScope();
         return this;
     }
 
@@ -110,7 +83,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: T): ExpressMvc {
-        kernel.bind<T>(identifier).toConstantValue(constantObj);
+        this.kernel.bind<T>(identifier).toConstantValue(constantObj);
         return this;
     }
 
@@ -138,8 +111,8 @@ export class ExpressMvc {
             throw new Error("Set view engine before server is started.");
         }
 
-        server.set('views', directory);
-        server.set('view engine', engine);
+        this.server.set('views', directory);
+        this.server.set('view engine', engine);
         return this;
     }
 
@@ -150,7 +123,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     setFavicon(path: string): ExpressMvc {
-        server.use(favicon(path));
+        this.server.use(favicon(path));
         return this;
     }
 
@@ -161,7 +134,7 @@ export class ExpressMvc {
      * @return {ExpressMvc}
      */
     addStatic(path: string): ExpressMvc {
-        server.use(e.static(path));
+        this.server.use(e.static(path));
         return this;
     }
 
@@ -175,7 +148,7 @@ export class ExpressMvc {
     listen(port?: number, host?: string): ExpressMvc {
         port = port || 3000;
 
-        extend(server, this.busboy);
+        extend(this.server, this.busboy);
 
         if (this.busboy.allowUpload) {
             console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
@@ -183,17 +156,18 @@ export class ExpressMvc {
             console.log('File uploads are not permitted.');
         }
 
-        let routes = RouteBuilder.instance.build();
+        // let routes = RouteBuilder.instance.build();
+        let routes = this.routerBuilder.build();
         
         for (let route of routes) {
             let middleware = [];
             route.middleware.forEach(mw => {
                 middleware.push(mw);
             });
-            server.use(route.path, ...middleware, route.router); 
+            this.server.use(route.path, ...middleware, route.router); 
         }
         
-        server.listen(port, () => {
+        this.server.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
         })
@@ -201,5 +175,3 @@ export class ExpressMvc {
         return this;
     }
 }
-
-kernel.bind<ExpressMvc>(express).to(ExpressMvc);

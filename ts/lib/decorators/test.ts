@@ -1,4 +1,4 @@
-import {kernel} from "../express-mvc";
+import {kernel} from "../setup";
 
 export function test() {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {

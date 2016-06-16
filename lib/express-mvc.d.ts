@@ -1,34 +1,23 @@
 import * as e from "express";
-import { INewable } from 'inversify';
+import { IKernel, INewable } from 'inversify';
+import { RouteBuilder } from "./router";
 import "reflect-metadata";
-export declare const express: Symbol;
-export declare const router: Symbol;
 export declare enum AllowedMethods {
     GET = 0,
     POST = 1,
     PUT = 2,
     DELETE = 3,
 }
-/**
- * The DI kernel, should only be used with care and only if you know what you are doing.
- * The DI kernel is documented on inversify's website
- */
-export declare var kernel: inversify.IKernel;
-export declare function getServer(): e.Express;
-/**
- * The main function called to create a ExpressMvc object, initialized the DI and returns a useable ExpressMvc object
- *
- * @param {...mvcController} ...controllers The list of controllers to add to DI, all controllers used are required.
- * @return {ExpressMvc}
- */
-export declare function expressMvc(...controllers: any[]): ExpressMvc;
 export declare class ExpressMvc {
+    private routerBuilder;
     running: boolean;
     busboy: {
         allowUpload: boolean;
         uploadPath: string;
     };
-    constructor();
+    server: e.Application;
+    kernel: IKernel;
+    constructor(routerBuilder: RouteBuilder);
     /**
      * Add a Transient service to DI
      *

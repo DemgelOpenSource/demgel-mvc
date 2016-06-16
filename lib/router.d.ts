@@ -2,13 +2,10 @@ import { IKernel } from "inversify";
 import { AllowedMethods } from "./express-mvc";
 import { RequestHandler, Router } from "express";
 import "reflect-metadata";
-export declare class RouteBuilder implements IRouteBuilder {
-    private static routeInstance;
-    private kernelInstance;
-    private routes;
-    constructor();
-    kernel: IKernel;
-    static instance: IRouteBuilder;
+export declare class RouteBuilder {
+    kernelInstance: IKernel;
+    routes: Map<string, IContainerRoute>;
+    constructor(kernel: IKernel);
     registerController(path: string, target: any): void;
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
