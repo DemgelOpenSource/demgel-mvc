@@ -9,7 +9,6 @@ var debug = _debug("expressify:setup");
 
 var k: IKernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
-// export var kernel = k;
 
 k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());
 k.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {

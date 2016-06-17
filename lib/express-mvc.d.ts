@@ -9,6 +9,9 @@ export declare enum AllowedMethods {
     PUT = 2,
     DELETE = 3,
 }
+export interface ExpressMvc {
+    notrunning: boolean;
+}
 export declare class ExpressMvc {
     private routerBuilder;
     private defaults;
@@ -23,19 +26,21 @@ export declare class ExpressMvc {
     /**
      * Add a Transient service to DI
      *
+     * If service and identifier are both of type class, only identifier is required (MUST BE CLASS)
+     *
      * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
-     * @param {any} service The service to add to the DI
+     * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addTransient<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc;
+    addTransient<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc;
     /**
      * Add a Singleton service to DI
      *
      * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
-     * @param {any} service The service to add to the DI
+     * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc;
+    addSingleton<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc;
     /**
      * An IOptions object to add to the DI, usually used by services for configuration
      *

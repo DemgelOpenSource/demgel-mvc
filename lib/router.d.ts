@@ -4,7 +4,7 @@ import { RequestHandler, Router } from "express";
 import "reflect-metadata";
 export declare class RouteBuilder {
     kernelInstance: IKernel;
-    routes: Map<string, IContainerRoute>;
+    routes: Map<Function, IContainerRoute>;
     constructor();
     registerController(path: string, target: any): void;
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;

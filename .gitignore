@@ -1,7 +1,10 @@
 node_modules
 typings
+views
+ts/tests
 
 # Logs
 logs
 *.log
 npm-debug.log*
+*.tgz

@@ -7,6 +7,7 @@ import * as favicon from "serve-favicon";
 import "reflect-metadata";
 import {Context} from "./context";
 import {DefaultOptions} from "./options/defaults";
+import {mvcService} from "./services/service";
 
 export enum AllowedMethods {
     GET,
@@ -16,6 +17,10 @@ export enum AllowedMethods {
 }
 
 const debug = _debug('expressify:express-mvc');
+
+export interface ExpressMvc {
+    notrunning: boolean;
+}
 
 @injectable()
 export class ExpressMvc {
@@ -30,8 +35,8 @@ export class ExpressMvc {
     kernel: IKernel;
 
     constructor(
-        @inject(RouteBuilder) private routerBuilder: RouteBuilder,
-        @inject(DefaultOptions) private defaults: DefaultOptions
+        private routerBuilder: RouteBuilder,
+        private defaults: DefaultOptions
     ) {
         this.server = e();
         this.server.use((req, res, next) => {
@@ -44,14 +49,20 @@ export class ExpressMvc {
     /**
      * Add a Transient service to DI
      *
+     * If service and identifier are both of type class, only identifier is required (MUST BE CLASS)
+     *
      * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
-     * @param {any} service The service to add to the DI
+     * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */    
-    addTransient<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
+    addTransient<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
+
+        if (typeof identifier === 'function' && !service) {
+            service = service || identifier;
+        }    
        
         this.kernel.bind<T>(identifier).to(service);
         return this;
@@ -61,12 +72,16 @@ export class ExpressMvc {
      * Add a Singleton service to DI
      *
      * @param {string | Symbol | INewable<T>} identifier The class/string/Symbol used to identify this Service
-     * @param {any} service The service to add to the DI
+     * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | INewable<T>, service: any): ExpressMvc {
+    addSingleton<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
+        }
+
+        if (typeof identifier === 'function' && !service) {
+            service = service || identifier;
         }
 
         this.kernel.bind<T>(identifier).to(service).inSingletonScope();

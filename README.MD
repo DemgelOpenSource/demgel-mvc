@@ -4,8 +4,9 @@ I am looking for a good Name for this project... if you feel like offering open 
 
 Simply a wrapper for expressjs. Use of Models/Views/Controllers in a simple to setup environment. Uses Inversify for DI.
 
-This project is not Ready for use in any way... This is still pre-alpha
-There are still no Typings for this, using this will be very difficult if even possible yet.
+## Status
+
+Alpha Status - This project is still young. It is not heavily tested. Use should be to help develope and find bugs and quicks that need to be addressed.
 
 ## Examples
 ### A Controller

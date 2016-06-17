@@ -14,7 +14,7 @@ const debug = _debug("expressify:router");
 @injectable()
 export class RouteBuilder {
     kernelInstance: IKernel;
-    routes: Map<string, IContainerRoute> = new Map<string, IContainerRoute>();
+    routes: Map<Function, IContainerRoute> = new Map<Function, IContainerRoute>();
 
     constructor() {
     }
@@ -97,7 +97,7 @@ export class RouteBuilder {
             route.methods.forEach((method, targetMethod) => {
                 let registerHandlerOnRouter = <IRouterMatcher<Router>>route.router[AllowedMethods[method.method].toLowerCase()];
                 let handler = (req: Request, res: Response, next: any) => {
-                    let cont: mvcController = this.kernelInstance.get(idx) as mvcController;
+                    let cont: mvcController = this.kernelInstance.get(<any>idx) as mvcController;
                     cont.context = (<any>req).context || new Context(req, res);
 
                     let args: Array<any> = [];

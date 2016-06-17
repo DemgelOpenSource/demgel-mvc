@@ -2,6 +2,8 @@ import {Response, Request} from "express";
 
 export class Context {
     extras: { [key: string]: any } = {};
+    model?: Model;
+
     constructor(public request: Request, public response: Response) {
 
     }
@@ -15,7 +17,7 @@ export class Context {
     }
 }
 
-export interface IContext {
-    method: string;
-    headers: { [key: string]: string };
+export interface Model {
+    isValid: boolean;
+    errors: { [key: string]: string };
 }

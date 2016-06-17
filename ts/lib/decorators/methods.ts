@@ -32,7 +32,7 @@ export function HttpPost(options?: {
             options.route = "/" + require('to-slug-case')(propertyKey);
         }
 
-        getRouter().registerHandler(AllowedMethods.GET, options.route, target, propertyKey, options.parameters || "");       
+        getRouter().registerHandler(AllowedMethods.POST, options.route, target, propertyKey, options.parameters || "");       
     }
 }
 

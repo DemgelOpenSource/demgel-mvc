@@ -1,0 +1,7 @@
+ts
+typings
+typings.json
+views
+tslint.json
+*.tgz
+.npmignore

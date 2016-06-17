@@ -5,15 +5,16 @@ export declare class Context {
     extras: {
         [key: string]: any;
     };
+    model?: Model;
     constructor(request: Request, response: Response);
-    method: string;
-    headers: {
+    readonly method: string;
+    readonly headers: {
         [key: string]: string;
     };
 }
-export interface IContext {
-    method: string;
-    headers: {
+export interface Model {
+    isValid: boolean;
+    errors: {
         [key: string]: string;
     };
 }

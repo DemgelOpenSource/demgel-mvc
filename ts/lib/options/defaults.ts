@@ -9,6 +9,10 @@ export class DefaultOptions extends AOptions {
         uploadPath: "./uploads"
     };
 
+    files = {
+        basePath: "./files"
+    }
+
     views = {
         path: '../views',
         engine: 'pug'

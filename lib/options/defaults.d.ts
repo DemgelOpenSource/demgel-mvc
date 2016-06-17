@@ -7,6 +7,9 @@ export declare class DefaultOptions extends AOptions {
         allowUpload: boolean;
         uploadPath: string;
     };
+    files: {
+        basePath: string;
+    };
     views: {
         path: string;
         engine: string;
