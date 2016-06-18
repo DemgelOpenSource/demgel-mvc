@@ -10,9 +10,14 @@ import {inject, injectable} from "inversify";
 import {JsonResult} from "../result/json";
 import {View} from "../result/view";
 import {RedirectResult} from "../result/redirect";
+import {ErrorResult} from "../result/error";
+import {Result} from "../result/result";
+import {mvcModel} from "../models/mvcModel";
+import {required} from "../decorators/object-validation/required";
 
 @Model()
-export class Test {
+export class Test extends mvcModel {
+    @required()
     value: string;
 }
 
@@ -32,11 +37,12 @@ export class TestController extends mvcController {
     }
 
     @HttpPost({route: '/test', parameters: '/:test/:test2?'})
-    anotherFunction(test: string, @fromBody test2?: Test) {
-        console.log("VALUES: ", test, test2);
-        if (!this.context.model.isValid) {
-            console.log(this.context.model);
+    anotherFunction(test: string, @fromBody test2?: Test): Result {
+        console.log(test2.isValid());
+        if (!test2.isValid()) {
+            return new ErrorResult(500, "Test Model is not valid");
         }
+
         return new RedirectResult(TestController);
     }
 

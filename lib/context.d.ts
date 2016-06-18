@@ -1,3 +1,4 @@
+/// <reference types="express" />
 import { Response, Request } from "express";
 export declare class Context {
     request: Request;

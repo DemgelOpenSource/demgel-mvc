@@ -37,6 +37,36 @@ export class ExampleController extends mvcController {
 
 Under the hood, inversify is injecting and creating the Controllers as needed. Every call is a seperate isntance, and every controller gets a `Context` that can be used to access the request/response and eventually other important functions.
 
+## Model injection/validation
+
+`demgel-mvc` can inject and validate models into your controller methods
+
+### Model
+``` typescript
+import {fromBody, required, Model, mvcModel} from "demgel-mvc";
+
+@Model()
+export class SomeModel extends mvcModel {
+    @required()
+    value: string;
+}
+```
+The `@Model` decorator will update the `isValid()` function that is inherited from `mvcModel`.
+The `@required` decorator will require that `value` has a value when `isValid()` is called, if it isn't it will return false, and the models `errors` property will be filled with a `Map<string, string>` that lists the errors found during validation.
+
+### Usage
+``` typescript
+export class someController extends mvcController {
+    @HttpPost({route: '/route', parameters: '/:someObject')
+    someControllerMethod(@fromBody() someObject: SomeModel): Result {
+        if (!someObject.isValid()) {
+            return new ErrorResult(500, "Model is invalid");
+        }
+        ...
+    }
+}
+```
+
 ## MiddleWare
 Middleware can still be used with express, actually you can still use express as before as you are able to access the server directly. But with express-mvc you can use decorators to handle many situations where you required middleware before.
 

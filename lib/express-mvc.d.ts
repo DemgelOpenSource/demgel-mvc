@@ -1,3 +1,4 @@
+/// <reference types="express" />
 import * as e from "express";
 import { IKernel, INewable } from 'inversify';
 import { RouteBuilder } from "./router";

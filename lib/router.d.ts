@@ -1,3 +1,5 @@
+/// <reference types="lodash" />
+/// <reference types="express" />
 import { IKernel } from "inversify";
 import { AllowedMethods } from "./express-mvc";
 import { RequestHandler, Router } from "express";

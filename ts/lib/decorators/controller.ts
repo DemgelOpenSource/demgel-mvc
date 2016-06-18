@@ -13,7 +13,6 @@ export function Controller(path: string) {
             let method = target.prototype[fb.propertyKey];
 
             var f: any = function (...args) {
-                this.context.model = <Model>{ isValid: true, errors: {} }; 
                 let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", this, fb.propertyKey);
                 let t: Object = this.context.request.body;
                 let obj: Object = new methodParams[fb.parameterIndex];

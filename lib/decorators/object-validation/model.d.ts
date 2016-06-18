@@ -1,1 +1,1 @@
-export declare function Model(): (target: any) => void;
+export declare function Model(): (target: any) => any;

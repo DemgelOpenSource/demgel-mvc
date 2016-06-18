@@ -1,3 +1,4 @@
+/// <reference types="express" />
 import { Result } from "./result";
 import { Response } from "express";
 import { RouteBuilder } from "../router";
