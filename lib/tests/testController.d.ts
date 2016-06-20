@@ -6,6 +6,9 @@ import { Result } from "../result/result";
 import { mvcModel } from "../models/mvcModel";
 export declare class Test extends mvcModel {
     value: string;
+    success: boolean;
+    fail: boolean;
+    number: number;
 }
 export declare class TestController extends mvcController {
     constructor(test: TestService);

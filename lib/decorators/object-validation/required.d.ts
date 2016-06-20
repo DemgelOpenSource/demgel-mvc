@@ -1,1 +1,1 @@
-export declare function required(): (target: any, propertyKey: string) => void;
+export declare function required(): (target: Object, propertyKey: string) => void;

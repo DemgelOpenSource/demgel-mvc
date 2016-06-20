@@ -16,7 +16,7 @@ export enum AllowedMethods {
     DELETE
 }
 
-const debug = _debug('expressify:express-mvc');
+const debug = _debug('demgel-mvc:express-mvc');
 
 export interface ExpressMvc {
     notrunning: boolean;

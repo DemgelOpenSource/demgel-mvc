@@ -14,11 +14,22 @@ import {ErrorResult} from "../result/error";
 import {Result} from "../result/result";
 import {mvcModel} from "../models/mvcModel";
 import {required} from "../decorators/object-validation/required";
+import * as t from "../decorators/object-validation/validator-builder";
 
 @Model()
 export class Test extends mvcModel {
     @required()
     value: string;
+
+    @t.testSuccessValidator({hello: 'dick'})
+    success: boolean;
+
+    @required()    
+    @t.testFailValidator
+    fail: boolean;
+
+    @t.isNumber
+    number: number;
 }
 
 @Controller("/")
@@ -38,7 +49,7 @@ export class TestController extends mvcController {
 
     @HttpPost({route: '/test', parameters: '/:test/:test2?'})
     anotherFunction(test: string, @fromBody test2?: Test): Result {
-        console.log(test2.isValid());
+ 
         if (!test2.isValid()) {
             return new ErrorResult(500, "Test Model is not valid");
         }
