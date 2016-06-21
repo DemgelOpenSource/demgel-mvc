@@ -1,6 +1,7 @@
+import { interfaces as i } from "inversify";
 import { ExpressMvc } from "./express-mvc";
 import { RouteBuilder } from "./router";
-export declare var pInject: (serviceIdentifier: string | Symbol | inversify.INewable<any>) => (proto: any, key: string) => void;
+export declare var pInject: (serviceIdentifier: string | Symbol | i.Newable<any>) => (proto: any, key: string) => void;
 /**
  * The main function called to create a ExpressMvc object, initialized the DI and returns a useable ExpressMvc object
  *

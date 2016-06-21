@@ -1,6 +1,6 @@
 /// <reference types="express" />
 import * as e from "express";
-import { IKernel, INewable } from 'inversify';
+import { interfaces as i } from 'inversify';
 import { RouteBuilder } from "./router";
 import "reflect-metadata";
 import { DefaultOptions } from "./options/defaults";
@@ -22,7 +22,7 @@ export declare class ExpressMvc {
         uploadPath: string;
     };
     server: e.Application;
-    kernel: IKernel;
+    kernel: i.Kernel;
     constructor(routerBuilder: RouteBuilder, defaults: DefaultOptions);
     /**
      * Add a Transient service to DI
@@ -33,7 +33,7 @@ export declare class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addTransient<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc;
+    addTransient<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc;
     /**
      * Add a Singleton service to DI
      *
@@ -41,14 +41,14 @@ export declare class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc;
+    addSingleton<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc;
     /**
      * An IOptions object to add to the DI, usually used by services for configuration
      *
      * @param {string | Symbol | INewable<T>} identifier The string/Symbol/class to identify this object in the DI
      * @return {ExpressMvc}
      */
-    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: T): ExpressMvc;
+    addOptions<T>(identifier: string | Symbol | i.Newable<T>, constantObj: T): ExpressMvc;
     /**
      * Should uploads be allowed
      *

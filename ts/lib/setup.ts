@@ -1,4 +1,4 @@
-import {IKernel, Kernel, makePropertyInjectDecorator} from "inversify";
+import {interfaces as i, Kernel, makePropertyInjectDecorator} from "inversify";
 import {ExpressMvc} from "./express-mvc";
 import {RouteBuilder} from "./router";
 import {mvcController} from "./controllers/mvcController";
@@ -7,7 +7,7 @@ import {DefaultOptions} from "./options/defaults";
 
 var debug = _debug("expressify:setup");
 
-var k: IKernel = new Kernel();
+var k: i.Kernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
 
 k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());

@@ -1,4 +1,4 @@
-import {IKernel, injectable} from "inversify";
+import {interfaces as i, injectable} from "inversify";
 import {mvcController} from "./controllers/mvcController";
 import {AllowedMethods} from "./express-mvc";
 import {Request, Response, RequestHandler, Router, IRouterMatcher} from "express";
@@ -13,7 +13,7 @@ const debug = _debug("expressify:router");
 
 @injectable()
 export class RouteBuilder {
-    kernelInstance: IKernel;
+    kernelInstance: i.Kernel;
     routes: Map<Function, IContainerRoute> = new Map<Function, IContainerRoute>();
 
     constructor() {
@@ -177,7 +177,7 @@ export enum Priority {
 }
 
 export interface IRouteBuilder {
-    kernel: IKernel;
+    kernel: i.Kernel;
     getRoute(controller: any | string): IContainerRoute;
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerController(path: string, target: any): void;

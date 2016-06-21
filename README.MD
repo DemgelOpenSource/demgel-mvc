@@ -11,7 +11,7 @@ Alpha Status - This project is still young. It is not heavily tested. Use should
 ## Examples
 ### A Controller
 ``` typescript
-import {mvcController, View} from 'demgel-mvc';
+import {mvcController, View} from '@demgel/mvc';
 import {inject} from 'inversify';
 
 @Controller('example')
@@ -39,11 +39,11 @@ Under the hood, inversify is injecting and creating the Controllers as needed. E
 
 ## Model injection/validation
 
-`demgel-mvc` can inject and validate models into your controller methods
+`@demgel/validation` can inject and validate models into your controller methods
 
 ### Model
 ``` typescript
-import {fromBody, required, Model, mvcModel} from "demgel-mvc";
+import {isModel, Model, required} from "@demgel/validation";
 
 @Model()
 export class SomeModel extends mvcModel {
@@ -56,6 +56,9 @@ The `@required` decorator will require that `value` has a value when `isValid()`
 
 ### Usage
 ``` typescript
+import {fromBody, mvcController, Controller} from "@demgel/mvc";
+
+@Controller('/')
 export class someController extends mvcController {
     @HttpPost({route: '/route', parameters: '/:someObject')
     someControllerMethod(@fromBody() someObject: SomeModel): Result {
@@ -73,7 +76,7 @@ Middleware can still be used with express, actually you can still use express as
 Method and Class decorators
 
 ``` typescript
-import {getRouter} from "demgel-mvc;
+import {getRouter} from "@demgel/mvc;
 
 // Class decorator (notice that only target is required)
 export function logger() {
@@ -98,7 +101,7 @@ export function methodLogger() {
 
 Using the decorators
 ``` typescript
-import {HttpGet, Controller, logger, methodLogger, mvcController} from "demgel-mvc";
+import {HttpGet, Controller, logger, methodLogger, mvcController} from "@demgel/mvc";
 
 @Controller("/")
 @logger()
@@ -154,7 +157,7 @@ server.listen();
 Write some controllers
 
 ``` typescript
-import {expressMvc} from "demgel-mvc";
+import {expressMvc} from "@demgel/mvc";
 import {SomeController, AnotherController} from "./controllers";
 
 // You have to pass the controllers or array of controllers to expressMvc

@@ -1,6 +1,6 @@
 import * as e from "express";
 import {extend} from "express-busboy";
-import {IKernel, injectable, inject, INewable} from 'inversify';
+import {injectable, inject, interfaces as i} from 'inversify';
 import {RouteBuilder} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
@@ -32,7 +32,7 @@ export class ExpressMvc {
     };
 
     server: e.Application;
-    kernel: IKernel;
+    kernel: i.Kernel;
 
     constructor(
         private routerBuilder: RouteBuilder,
@@ -55,7 +55,7 @@ export class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */    
-    addTransient<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc {
+    addTransient<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -75,7 +75,7 @@ export class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | INewable<T>, service?: any): ExpressMvc {
+    addSingleton<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -94,7 +94,7 @@ export class ExpressMvc {
      * @param {string | Symbol | INewable<T>} identifier The string/Symbol/class to identify this object in the DI
      * @return {ExpressMvc}
      */
-    addOptions<T>(identifier: string | Symbol | INewable<T>, constantObj: T): ExpressMvc {
+    addOptions<T>(identifier: string | Symbol | i.Newable<T>, constantObj: T): ExpressMvc {
         this.kernel.bind<T>(identifier).toConstantValue(constantObj);
         return this;
     }

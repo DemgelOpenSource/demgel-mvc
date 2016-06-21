@@ -1,11 +1,11 @@
 /// <reference types="lodash" />
 /// <reference types="express" />
-import { IKernel } from "inversify";
+import { interfaces as i } from "inversify";
 import { AllowedMethods } from "./express-mvc";
 import { RequestHandler, Router } from "express";
 import "reflect-metadata";
 export declare class RouteBuilder {
-    kernelInstance: IKernel;
+    kernelInstance: i.Kernel;
     routes: Map<Function, IContainerRoute>;
     constructor();
     registerController(path: string, target: any): void;
@@ -37,7 +37,7 @@ export declare enum Priority {
     Normal = 3,
 }
 export interface IRouteBuilder {
-    kernel: IKernel;
+    kernel: i.Kernel;
     getRoute(controller: any | string): IContainerRoute;
     registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
     registerController(path: string, target: any): void;
