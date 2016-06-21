@@ -2,7 +2,6 @@ import {RouteBuilder} from "../router";
 import {RequestHandler} from "express";
 import {getRouter} from "../setup";
 import {mvcController} from "../controllers/mvcController";
-import {Test} from "../tests/testController";
 import {Model} from "../context";
 
 export function Controller(path: string) {
