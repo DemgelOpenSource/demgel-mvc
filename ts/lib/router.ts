@@ -7,7 +7,6 @@ import {ErrorResult} from "./result/error";
 import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
-import "reflect-metadata";
 
 const debug = _debug("expressify:router");
 

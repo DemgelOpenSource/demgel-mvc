@@ -3,7 +3,6 @@
 import { interfaces as i } from "inversify";
 import { AllowedMethods } from "./express-mvc";
 import { RequestHandler, Router } from "express";
-import "reflect-metadata";
 export declare class RouteBuilder {
     kernelInstance: i.Kernel;
     routes: Map<Function, IContainerRoute>;

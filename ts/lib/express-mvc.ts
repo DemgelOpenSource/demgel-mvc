@@ -4,7 +4,6 @@ import {injectable, inject, interfaces as i} from 'inversify';
 import {RouteBuilder} from "./router";
 import * as _debug from "debug";
 import * as favicon from "serve-favicon";
-import "reflect-metadata";
 import {Context} from "./context";
 import {DefaultOptions} from "./options/defaults";
 import {mvcService} from "./services/service";

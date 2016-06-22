@@ -2,7 +2,6 @@
 import * as e from "express";
 import { interfaces as i } from 'inversify';
 import { RouteBuilder } from "./router";
-import "reflect-metadata";
 import { DefaultOptions } from "./options/defaults";
 export declare enum AllowedMethods {
     GET = 0,
