@@ -1,8 +1,15 @@
 [![Gitter](https://badges.gitter.im/DemgelOpenSource/Home.svg)](https://gitter.im/DemgelOpenSource/Home?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-# MVC with ExpressJS
-I am looking for a good Name for this project... if you feel like offering open an issue.
+[![npm (scoped)](https://img.shields.io/npm/v/@demgel/mvc.svg?maxAge=2592000)](https://github.com/DemgelOpenSource/demgel-mvc)
+[![](https://img.shields.io/github/issues-raw/DemgelOpenSource/demgel-mvc.svg?maxAge=2592000)](https://github.com/DemgelOpenSource/demgel-mvc/issues)
 
-Simply a wrapper for expressjs. Use of Models/Views/Controllers in a simple to setup environment. Uses Inversify for DI.
+# MVC with ExpressJS
+MVC wrapper for expressjs. Use of Models/Views/Controllers in a simple to setup environment. Uses Inversify for DI.
+
+## Modules
+The following modules work with demgel/mvc
+
+* [@demgel/sockets](https://github.com/DemgelOpenSource/demgel-sockets)
+* [@demgel/validation](https://github.com/DemgelOpenSource/demgel-validation)
 
 ## Status
 

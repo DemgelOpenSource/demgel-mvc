@@ -118,7 +118,7 @@ export class RouteBuilder {
         return this.routes.values();
     }
 
-    private newController(): IContainerRoute {
+    newController(): IContainerRoute {
         return {
             middleware: new Map<Priority, RequestHandler[]>(),
             path: undefined,
@@ -127,7 +127,7 @@ export class RouteBuilder {
         }
     }
 
-    private newControllerMethod(): IControllerMethod {
+    newControllerMethod(): IControllerMethod {
         return {
             middleware: new Map < Priority, RequestHandler[]>(),
             path: undefined,

@@ -7,7 +7,7 @@ import {DefaultOptions} from "./options/defaults";
 
 var debug = _debug("expressify:setup");
 
-var k: i.Kernel = new Kernel();
+export var k: i.Kernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);
 
 k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());

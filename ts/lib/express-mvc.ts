@@ -7,6 +7,7 @@ import * as favicon from "serve-favicon";
 import {Context} from "./context";
 import {DefaultOptions} from "./options/defaults";
 import {mvcService} from "./services/service";
+import {createServer, Server} from "http";
 
 export enum AllowedMethods {
     GET,
@@ -30,15 +31,19 @@ export class ExpressMvc {
         uploadPath: "./uploads"
     };
 
-    server: e.Application;
+    express: e.Express;
+    httpServer: Server;
     kernel: i.Kernel;
 
     constructor(
-        private routerBuilder: RouteBuilder,
-        private defaults: DefaultOptions
+        public routerBuilder: RouteBuilder,
+        public defaults: DefaultOptions
     ) {
-        this.server = e();
-        this.server.use((req, res, next) => {
+        // We need to allow for @demgel/sockets
+        this.express = e();
+        this.httpServer = createServer(this.express);
+
+        this.express.use((req, res, next) => {
             debug("adding context");
             (<any>req).context = new Context(req, res);
             next();
@@ -160,7 +165,7 @@ export class ExpressMvc {
         port = port || 3000;
 
         // Busboy Setup        
-        extend(this.server, this.defaults.busboy);
+        extend(this.express, this.defaults.busboy);
 
         if (this.defaults.busboy.allowUpload) {
             console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
@@ -169,27 +174,27 @@ export class ExpressMvc {
         }
 
         // Setup Viewengine
-        this.server.set('views', this.defaults.views.path);
-        this.server.set('view engine', this.defaults.views.engine);
+        this.express.set('views', this.defaults.views.path);
+        this.express.set('view engine', this.defaults.views.engine);
         
         // Favicon Setup
         if (this.defaults.favicon.path) {
-            this.server.use(favicon(this.defaults.favicon.path));
+            this.express.use(favicon(this.defaults.favicon.path));
         }    
         
         // Static Files setup
         this.defaults.staticFiles.paths.forEach(path => {
-            this.server.use(e.static(path));
+            this.express.use(e.static(path));
         });
         
         let routes = this.routerBuilder.build();
         
         for (let route of routes) {
             let middleware = this.routerBuilder.sortMiddleware(route.middleware);
-            this.server.use(route.path, ...middleware, route.router); 
+            this.express.use(route.path, ...middleware, route.router); 
         }
         
-        this.server.listen(port, () => {
+        this.httpServer.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
         })

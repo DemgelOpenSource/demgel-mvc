@@ -1,8 +1,10 @@
 /// <reference types="express" />
+/// <reference types="node" />
 import * as e from "express";
 import { interfaces as i } from 'inversify';
 import { RouteBuilder } from "./router";
 import { DefaultOptions } from "./options/defaults";
+import { Server } from "http";
 export declare enum AllowedMethods {
     GET = 0,
     POST = 1,
@@ -13,14 +15,15 @@ export interface ExpressMvc {
     notrunning: boolean;
 }
 export declare class ExpressMvc {
-    private routerBuilder;
-    private defaults;
+    routerBuilder: RouteBuilder;
+    defaults: DefaultOptions;
     running: boolean;
     busboy: {
         allowUpload: boolean;
         uploadPath: string;
     };
-    server: e.Application;
+    express: e.Express;
+    httpServer: Server;
     kernel: i.Kernel;
     constructor(routerBuilder: RouteBuilder, defaults: DefaultOptions);
     /**

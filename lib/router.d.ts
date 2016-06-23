@@ -13,8 +13,8 @@ export declare class RouteBuilder {
     registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
     getRoute(controller: any): IContainerRoute;
     build(): IterableIterator<IContainerRoute>;
-    private newController();
-    private newControllerMethod();
+    newController(): IContainerRoute;
+    newControllerMethod(): IControllerMethod;
     sortMiddleware(middleware: Map<Priority, RequestHandler[]>): any[];
 }
 export interface IContainerRoute {
