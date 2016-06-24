@@ -122,13 +122,17 @@ export class ExpressMvc {
      * @param {string} directory The base directory that contains the views
      * @return {ExpressMvc}
      */
-    setViewEngine(directory: string, engine?: string): ExpressMvc {
+    setViewEngine(directory: string, engine?: string, engineImpl?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Set view engine before server is started.");
         }
 
         this.defaults.views.engine = engine || this.defaults.views.engine;
         this.defaults.views.path = directory;
+
+        if (engineImpl) {
+            this.defaults.views.engineImpl = engineImpl;
+        }
         return this;
     }
 
@@ -176,6 +180,9 @@ export class ExpressMvc {
         // Setup Viewengine
         this.express.set('views', this.defaults.views.path);
         this.express.set('view engine', this.defaults.views.engine);
+        if (this.defaults.views.engineImpl) {
+            this.express.engine(this.defaults.views.engine, this.defaults.views.engineImpl);
+        }
         
         // Favicon Setup
         if (this.defaults.favicon.path) {

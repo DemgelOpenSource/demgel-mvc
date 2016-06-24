@@ -65,7 +65,7 @@ export declare class ExpressMvc {
      * @param {string} directory The base directory that contains the views
      * @return {ExpressMvc}
      */
-    setViewEngine(directory: string, engine?: string): ExpressMvc;
+    setViewEngine(directory: string, engine?: string, engineImpl?: any): ExpressMvc;
     /**
      * Adds support for sending favicon.ico
      *

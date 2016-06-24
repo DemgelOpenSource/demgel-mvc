@@ -5,7 +5,7 @@ import {mvcController} from "./controllers/mvcController";
 import * as _debug from "debug";
 import {DefaultOptions} from "./options/defaults";
 
-var debug = _debug("expressify:setup");
+var debug = _debug("demgel-mvc:setup");
 
 export var k: i.Kernel = new Kernel();
 export var pInject = makePropertyInjectDecorator(k);

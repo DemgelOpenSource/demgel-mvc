@@ -13,6 +13,7 @@ export declare class DefaultOptions extends AOptions {
     views: {
         path: string;
         engine: string;
+        engineImpl: any;
     };
     favicon: {
         path: any;

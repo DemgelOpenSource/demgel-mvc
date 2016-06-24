@@ -15,7 +15,8 @@ export class DefaultOptions extends AOptions {
 
     views = {
         path: '../views',
-        engine: 'pug'
+        engine: 'pug',
+        engineImpl: undefined,
     };
 
     favicon = {

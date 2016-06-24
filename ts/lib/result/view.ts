@@ -17,7 +17,7 @@ export class View extends Result {
     handle(res: Response) {
         res.render(`${this.controller}/${this.view}`, this.viewOptions || {}, (err: Error, html: string) => {
             if (err) {
-                res.status(500).send("Error Message");
+                res.status(500).send("Error Message" + err);
             } else {
                 res.status(200).send(html);
             }
