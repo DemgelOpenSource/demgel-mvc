@@ -11,12 +11,12 @@ export function Controller(path: string) {
         for (let fb of frombody) {
             let method = target.prototype[fb.propertyKey];
 
-            var f: any = function (...args) {
+            var f: any = function (...args: any[]) {
                 let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", this, fb.propertyKey);
                 let t: Object = this.context.request.body;
                 let obj: Object = new methodParams[fb.parameterIndex];
                 for (let a in t) {
-                    obj[a] = t[a];
+                    (<any>obj)[a] = (<any>t)[a];
                 }
                 args[fb.parameterIndex] = obj;
                 return method.apply(this, args);

@@ -1,32 +1,32 @@
 /// <reference types="lodash" />
 /// <reference types="express" />
 import { interfaces as i } from "inversify";
-import { AllowedMethods } from "./express-mvc";
 import { RequestHandler, Router } from "express";
 export declare class RouteBuilder {
-    kernelInstance: i.Kernel;
-    routes: Map<Function, IContainerRoute>;
+    kernel: i.Kernel;
+    routes: Map<Function, ContainerRoute>;
     constructor();
     registerController(path: string, target: any): void;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
-    registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
-    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
-    getRoute(controller: any): IContainerRoute;
-    build(): IterableIterator<IContainerRoute>;
-    newController(): IContainerRoute;
-    newControllerMethod(): IControllerMethod;
-    sortMiddleware(middleware: Map<Priority, RequestHandler[]>): any[];
+    registerHandler(httpMethod: string, path: string, target: any, targetMethod: string, parameters: string): void;
+    registerClassMiddleware(target: any, middleware: RequestHandler): void;
+    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler): void;
+    getRoute(controller: any): ContainerRoute | undefined;
+    build(): IterableIterator<ContainerRoute>;
+    newController(): ContainerRoute;
+    newControllerMethod(): ControllerMethod;
+    sortMiddleware(middleware: Map<Priority, RequestHandler[]>): Array<RequestHandler>;
+    pushMiddleware(priority: Priority, middleware: Map<Priority, RequestHandler[]>, middlewareArray: RequestHandler[]): void;
 }
-export interface IContainerRoute {
+export interface ContainerRoute {
     middleware: Map<Priority, RequestHandler[]>;
-    methods: Map<string, IControllerMethod>;
-    path: string;
+    methods: Map<string, ControllerMethod>;
+    path: string | undefined;
     router: Router;
 }
-export interface IControllerMethod {
+export interface ControllerMethod {
     middleware: Map<Priority, RequestHandler[]>;
-    path: string;
-    method: AllowedMethods;
+    path: string | undefined;
+    method: string | undefined;
     parameters: string;
 }
 export declare enum Priority {
@@ -35,12 +35,5 @@ export declare enum Priority {
     Post = 2,
     Normal = 3,
 }
-export interface IRouteBuilder {
-    kernel: i.Kernel;
-    getRoute(controller: any | string): IContainerRoute;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
-    registerController(path: string, target: any): void;
-    registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
-    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
-    build(): IterableIterator<IContainerRoute>;
+export interface RouteBuilder {
 }

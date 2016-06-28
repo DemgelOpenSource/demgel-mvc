@@ -6,22 +6,19 @@ import { RouteBuilder } from "./router";
 import { DefaultOptions } from "./options/defaults";
 import { Server } from "http";
 export declare enum AllowedMethods {
-    GET = 0,
-    POST = 1,
-    PUT = 2,
-    DELETE = 3,
+    ALL = 0,
+    GET = 1,
+    POST = 2,
+    PUT = 3,
+    DELETE = 4,
+    PATCH = 5,
 }
 export interface ExpressMvc {
-    notrunning: boolean;
 }
 export declare class ExpressMvc {
     routerBuilder: RouteBuilder;
     defaults: DefaultOptions;
     running: boolean;
-    busboy: {
-        allowUpload: boolean;
-        uploadPath: string;
-    };
     express: e.Express;
     httpServer: Server;
     kernel: i.Kernel;
@@ -35,7 +32,7 @@ export declare class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addTransient<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc;
+    addTransient<T>(identifier: i.ServiceIdentifier<T>, service?: any): ExpressMvc;
     /**
      * Add a Singleton service to DI
      *
@@ -43,14 +40,14 @@ export declare class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc;
+    addSingleton<T>(identifier: i.ServiceIdentifier<T>, service?: any): ExpressMvc;
     /**
      * An IOptions object to add to the DI, usually used by services for configuration
      *
      * @param {string | Symbol | INewable<T>} identifier The string/Symbol/class to identify this object in the DI
      * @return {ExpressMvc}
      */
-    addOptions<T>(identifier: string | Symbol | i.Newable<T>, constantObj: T): ExpressMvc;
+    addOptions<T>(identifier: i.ServiceIdentifier<T>, constantObj: T): ExpressMvc;
     /**
      * Should uploads be allowed
      *

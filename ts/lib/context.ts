@@ -21,3 +21,7 @@ export interface Model {
     isValid: boolean;
     errors: { [key: string]: string };
 }
+
+export interface Context {
+
+}

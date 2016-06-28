@@ -10,15 +10,17 @@ export declare class DefaultOptions extends AOptions {
     files: {
         basePath: string;
     };
-    views: {
-        path: string;
-        engine: string;
-        engineImpl: any;
-    };
-    favicon: {
-        path: any;
-    };
+    views: ViewOptions;
+    favicon: FaviconOptions;
     staticFiles: {
         paths: string[];
     };
+}
+export interface ViewOptions {
+    path: string;
+    engine: string;
+    engineImpl: any | undefined;
+}
+export interface FaviconOptions {
+    path: string | undefined;
 }

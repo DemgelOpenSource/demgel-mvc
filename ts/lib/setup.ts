@@ -7,16 +7,16 @@ import {DefaultOptions} from "./options/defaults";
 
 var debug = _debug("demgel-mvc:setup");
 
-export var k: i.Kernel = new Kernel();
-export var pInject = makePropertyInjectDecorator(k);
+export var kernel: i.Kernel = new Kernel();
+export var pInject = makePropertyInjectDecorator(kernel);
 
-k.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());
-k.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {
-    router.kernelInstance = k;
+kernel.bind<DefaultOptions>(DefaultOptions).toConstantValue(new DefaultOptions());
+kernel.bind<RouteBuilder>(RouteBuilder).to(RouteBuilder).inSingletonScope().onActivation((context, router) => {
+    router.kernel = kernel;
     return router;
 });
-k.bind<ExpressMvc>(ExpressMvc).to(ExpressMvc).onActivation((context, expressify) => {
-    expressify.kernel = k;
+kernel.bind<ExpressMvc>(ExpressMvc).to(ExpressMvc).onActivation((context, expressify) => {
+    expressify.kernel = kernel;
     return expressify;
 });
 
@@ -31,13 +31,13 @@ export function expressMvc(...controllers: any[]): ExpressMvc {
     // Handle registering Controllers
     controllers.forEach(controller => {
         debug(`Binding controller (${controller.name})`);
-        k.bind<mvcController>(controller).to(controller);
+        kernel.bind<mvcController>(controller).to(controller);
         debug(`Bound controller (${controller.name})`);
     });
     debug('Finished binding controllers...');
-    return k.get<ExpressMvc>(ExpressMvc);
+    return kernel.get<ExpressMvc>(ExpressMvc);
 }
 
 export function getRouter(): RouteBuilder {
-    return k.get<RouteBuilder>(RouteBuilder);
+    return kernel.get<RouteBuilder>(RouteBuilder);
 }

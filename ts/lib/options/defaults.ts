@@ -13,17 +13,27 @@ export class DefaultOptions extends AOptions {
         basePath: "./files"
     }
 
-    views = {
+    views: ViewOptions = {
         path: '../views',
         engine: 'pug',
         engineImpl: undefined,
     };
 
-    favicon = {
+    favicon: FaviconOptions = {
         path: undefined
     };
 
     staticFiles = {
         paths: new Array<string>()
     }
+}
+
+export interface ViewOptions {
+    path: string;
+    engine: string;
+    engineImpl: any | undefined;
+}
+
+export interface FaviconOptions {
+    path: string | undefined;
 }

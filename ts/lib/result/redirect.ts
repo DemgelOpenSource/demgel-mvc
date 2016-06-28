@@ -14,9 +14,11 @@ export class RedirectResult extends Result {
         if (typeof controller === 'string') {
             this.controller = controller + "/";
         } else {
-            // let cont = RouteBuilder.instance.getRoute(controller);
             let cont = this.router.getRoute(controller);
-            if (cont.path === "/") {
+            if (!cont) {
+                throw new Error("Redirect Controller not found");
+            }
+            if (cont.path && cont.path === "/") {
                 this.controller = cont.path;
             } else {
                 this.controller = cont.path + "/";

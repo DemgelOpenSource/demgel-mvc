@@ -12,122 +12,136 @@ const debug = _debug("expressify:router");
 
 @injectable()
 export class RouteBuilder {
-    kernelInstance: i.Kernel;
-    routes: Map<Function, IContainerRoute> = new Map<Function, IContainerRoute>();
+    kernel: i.Kernel;
+    routes: Map<Function, ContainerRoute> = new Map<Function, ContainerRoute>();
 
     constructor() {
     }
     
     registerController(path: string, target: any) {
         debug("registering controller", target.name);
-        if (!this.routes.has(target)) {
-            debug("setting container");
-            this.routes.set(target, this.newController());
-        }
 
         let container = this.routes.get(target);
-        container.path = path;
-    }
-
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string) {
-        debug("registering handler", targetMethod);
-        if (!this.routes.has(target.constructor)) {
-            debug("setting container", target);
-            this.routes.set(target.constructor, this.newController());
+        if (!container) {
+            container = this.newController();
+            this.routes.set(target, container);
         }
+        if (container) {
+            container.path = path;
+        }    
+    }
+    
+    registerHandler(httpMethod: string, path: string, target: any, targetMethod: string, parameters: string) {
+        debug("registering handler", targetMethod);
 
         let container = this.routes.get(target.constructor);
 
-        if (!container.methods.has(targetMethod)) {
-            container.methods.set(targetMethod, this.newControllerMethod());
+        if (!container) {
+            container = this.newController();
+            this.routes.set(target.constructor, container);
         }
 
         let method = container.methods.get(targetMethod);
+        if (!method) {
+            method = this.newControllerMethod();
+            container.methods.set(targetMethod, method);
+        }
         method.method = httpMethod;
         method.path = path;
         method.parameters = parameters;
     }
 
-    registerClassMiddleware(target: any, middleware: RequestHandler, priority: Priority = Priority.Normal) {
+    registerClassMiddleware(target: any, middleware: RequestHandler): void;    
+    registerClassMiddleware(target: any, middleware: RequestHandler, priority: Priority = Priority.Normal): void {
         debug("registering class middleware", target.name)
-        if (!this.routes.has(target)) {
-            debug("setting container", target.name);
-            this.routes.set(target, this.newController());
-        }
 
         let container = this.routes.get(target);
         
-        if (!container.middleware.has(priority)) {
-            container.middleware.set(priority, []);
+        if (!container) {
+            container = this.newController();
+            this.routes.set(target, container);
         }
 
-        container.middleware.get(priority).push(middleware);
+        let mw = container.middleware.get(priority);     
+        if (!mw) {
+            mw = [];
+            container.middleware.set(priority, mw);
+        }
+
+        mw.push(middleware);
     }
 
-    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority: Priority = Priority.Normal) {
-        if (!this.routes.has(target.constructor)) {
-            this.routes.set(target.constructor, this.newController());
-        }
-
+    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler): void;    
+    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority: Priority = Priority.Normal): void {
         let container = this.routes.get(target.constructor);
-
-        if (!container.methods.get(propertyKey)) {
-            container.methods.set(propertyKey, this.newControllerMethod());
+        if (!container) {
+            container = this.newController();
+            this.routes.set(target.constructor, container);
         }
 
         let method = container.methods.get(propertyKey);
-
-        if (!method.middleware.has(priority)) {
-            method.middleware.set(priority, []);
+        if (!method) {
+            method = this.newControllerMethod();
+            container.methods.set(propertyKey, method);
         }
 
-        method.middleware.get(priority).push(middleware);
+        let priorityMiddleware = method.middleware.get(priority);        
+        if (!priorityMiddleware) {
+            priorityMiddleware = [];
+            method.middleware.set(priority, priorityMiddleware);
+        }
 
+        priorityMiddleware.push(middleware);
     }
 
-    getRoute(controller: any): IContainerRoute {
+    getRoute(controller: any): ContainerRoute | undefined {
         return this.routes.get(controller);
     }   
     
-    build(): IterableIterator<IContainerRoute> {
+    build(): IterableIterator<ContainerRoute> {
         // First we get all controllers
         this.routes.forEach((route, idx) => {
             // We will need to apply the method routes to the router of each controller
             route.methods.forEach((method, targetMethod) => {
-                let registerHandlerOnRouter = <IRouterMatcher<Router>>route.router[AllowedMethods[method.method].toLowerCase()];
-                let handler = (req: Request, res: Response, next: any) => {
-                    let cont: mvcController = this.kernelInstance.get(<any>idx) as mvcController;
-                    cont.context = (<any>req).context || new Context(req, res);
+                // If somehow method is not set, don't apply it
+                if (method.method) {
+                    let registerHandlerOnRouter = <IRouterMatcher<Router>>(<any>route.router)[method.method.toLowerCase()];
+                    let handler = (req: Request, res: Response, next: any) => {
+                        let cont: mvcController = this.kernel.get(<any>idx) as mvcController;
+                        cont.context = (<any>req).context || new Context(req, res);
 
-                    let args: Array<any> = [];
-                    let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", cont, targetMethod);
-                    debug("method parameters", methodParams);
-                    Object.keys(req.params).forEach((param) => {
-                        args.push(req.params[param]);
-                    });
-                    let result: Result = cont[targetMethod].apply(cont, args);
-                    result.handle(res);
-                };
+                        let args: Array<any> = [];
+                        let methodParams: Array<any> = Reflect.getMetadata("design:paramtypes", cont, targetMethod);
+                        debug("method parameters", methodParams);
+                        Object.keys(req.params).forEach((param) => {
+                            args.push(req.params[param]);
+                        });
+                        let result: Result = (<any>cont)[targetMethod].apply(cont, args);
+                        if (!res.headersSent) {
+                            result.handle(res);
+                        }
+                    };
 
-                let mw = this.sortMiddleware(method.middleware);
+                    let mw = this.sortMiddleware(method.middleware);
                 
-                registerHandlerOnRouter.apply(route.router, [method.path + method.parameters, ...mw, handler]);
+                    registerHandlerOnRouter.apply(route.router, [method.path + method.parameters, ...mw, handler]);
+                }
             });
         });
         
         return this.routes.values();
     }
 
-    newController(): IContainerRoute {
+    newController(): ContainerRoute {
         return {
             middleware: new Map<Priority, RequestHandler[]>(),
             path: undefined,
             router: Router(),
-            methods: new Map<string, IControllerMethod>()
+            methods: new Map<string, ControllerMethod>()
         }
     }
 
-    newControllerMethod(): IControllerMethod {
+    newControllerMethod(): ControllerMethod {
         return {
             middleware: new Map < Priority, RequestHandler[]>(),
             path: undefined,
@@ -136,35 +150,36 @@ export class RouteBuilder {
         }
     }
 
-    sortMiddleware(middleware: Map<Priority, RequestHandler[]>) {
-        let mw = [];
-        if (middleware.has(Priority.Authorize)) {
-            mw.push(middleware.get(Priority.Authorize));
-        }
-        if (middleware.has(Priority.Pre)) {
-            mw.push(middleware.get(Priority.Pre));
-        }
-        if (middleware.has(Priority.Normal)) {
-            mw.push(middleware.get(Priority.Normal));
-        }
-        if (middleware.has(Priority.Post)) {
-            mw.push(middleware.get(Priority.Post));
-        }
+    sortMiddleware(middleware: Map<Priority, RequestHandler[]>): Array<RequestHandler> {
+        let mw: Array<RequestHandler> = [];
+
+        this.pushMiddleware(Priority.Authorize, middleware, mw);
+        this.pushMiddleware(Priority.Pre, middleware, mw);
+        this.pushMiddleware(Priority.Normal, middleware, mw);
+        this.pushMiddleware(Priority.Post, middleware, mw);
+
         return mw;
+    }
+
+    pushMiddleware(priority: Priority, middleware: Map<Priority, RequestHandler[]>, middlewareArray: RequestHandler[]): void {
+        let mw = middleware.get(priority);
+        if (mw) {
+            middlewareArray.push(...mw);
+        }
     }
 }
 
-export interface IContainerRoute {
+export interface ContainerRoute {
     middleware: Map<Priority, RequestHandler[]>;
-    methods: Map<string, IControllerMethod>; 
-    path: string;
+    methods: Map<string, ControllerMethod>; 
+    path: string | undefined;
     router: Router;
 }
 
-export interface IControllerMethod {
+export interface ControllerMethod {
     middleware: Map<Priority, RequestHandler[]>;
-    path: string;
-    method: AllowedMethods;
+    path: string | undefined;
+    method: string | undefined;
     parameters: string;
 }
 
@@ -175,12 +190,5 @@ export enum Priority {
     Normal
 }
 
-export interface IRouteBuilder {
-    kernel: i.Kernel;
-    getRoute(controller: any | string): IContainerRoute;
-    registerHandler(httpMethod: AllowedMethods, path: string, target: any, targetMethod: string, parameters: string): void;
-    registerController(path: string, target: any): void;
-    registerClassMiddleware(target: any, middleware: RequestHandler, priority?: Priority): void;
-    registerMethodMiddleware(target: any, propertyKey: string, middleware: RequestHandler, priority?: Priority): void;
-    build(): IterableIterator<IContainerRoute>;
+export interface RouteBuilder {
 }

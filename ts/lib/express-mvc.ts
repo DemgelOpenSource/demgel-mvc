@@ -10,27 +10,22 @@ import {mvcService} from "./services/service";
 import {createServer, Server} from "http";
 
 export enum AllowedMethods {
+    ALL,
     GET,
     POST,
     PUT,
-    DELETE
+    DELETE,
+    PATCH
 }
 
 const debug = _debug('demgel-mvc:express-mvc');
 
 export interface ExpressMvc {
-    notrunning: boolean;
 }
 
 @injectable()
 export class ExpressMvc {
     running: boolean;
-
-    busboy = { 
-        allowUpload: false,
-        uploadPath: "./uploads"
-    };
-
     express: e.Express;
     httpServer: Server;
     kernel: i.Kernel;
@@ -43,9 +38,9 @@ export class ExpressMvc {
         this.express = e();
         this.httpServer = createServer(this.express);
 
-        this.express.use((req, res, next) => {
+        this.express.use((req: e.Request, res: e.Response, next: e.NextFunction) => {
             debug("adding context");
-            (<any>req).context = new Context(req, res);
+            req.context = new Context(req, res);
             next();
         });
     }
@@ -59,7 +54,7 @@ export class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */    
-    addTransient<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc {
+    addTransient<T>(identifier: i.ServiceIdentifier<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -79,7 +74,7 @@ export class ExpressMvc {
      * @param {any} (Optional if identifier is class to register) service The service to add to the DI
      * @return {ExpressMvc}
      */
-    addSingleton<T>(identifier: string | Symbol | i.Newable<T>, service?: any): ExpressMvc {
+    addSingleton<T>(identifier: i.ServiceIdentifier<T>, service?: any): ExpressMvc {
         if (this.running) {
             throw new Error("Add services before starting server.");
         }
@@ -98,7 +93,7 @@ export class ExpressMvc {
      * @param {string | Symbol | INewable<T>} identifier The string/Symbol/class to identify this object in the DI
      * @return {ExpressMvc}
      */
-    addOptions<T>(identifier: string | Symbol | i.Newable<T>, constantObj: T): ExpressMvc {
+    addOptions<T>(identifier: i.ServiceIdentifier<T>, constantObj: T): ExpressMvc {
         this.kernel.bind<T>(identifier).toConstantValue(constantObj);
         return this;
     }
@@ -111,7 +106,7 @@ export class ExpressMvc {
      */
     allowUpload(path?: string): ExpressMvc {
         this.defaults.busboy.allowUpload = true;
-        this.defaults.busboy.uploadPath = path || this.busboy.uploadPath;
+        this.defaults.busboy.uploadPath = path || this.defaults.busboy.uploadPath;
         return this;
     }   
     
@@ -172,7 +167,7 @@ export class ExpressMvc {
         extend(this.express, this.defaults.busboy);
 
         if (this.defaults.busboy.allowUpload) {
-            console.log(`Files will be uploaded to ${this.busboy.uploadPath}.`);
+            console.log(`Files will be uploaded to ${this.defaults.busboy.uploadPath}.`);
         } else {
             console.log('File uploads are not permitted.');
         }
@@ -197,14 +192,16 @@ export class ExpressMvc {
         let routes = this.routerBuilder.build();
         
         for (let route of routes) {
+            if (!route.path) continue;
             let middleware = this.routerBuilder.sortMiddleware(route.middleware);
-            this.express.use(route.path, ...middleware, route.router); 
+            route.router.use(...middleware);
+            this.express.use(route.path, route.router); 
         }
         
         this.httpServer.listen(port, () => {
             console.log(`Listening on port ${port}...`);
             this.running = true;
-        })
+        });
 
         return this;
     }

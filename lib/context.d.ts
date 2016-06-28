@@ -19,3 +19,5 @@ export interface Model {
         [key: string]: string;
     };
 }
+export interface Context {
+}
