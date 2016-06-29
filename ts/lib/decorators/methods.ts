@@ -7,7 +7,7 @@ import {getRouter} from "../setup";
  */
 export function HttpGet(options: MethodOptions = {}) {
     return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => {
-        RegisterMethod(AllowedMethods[AllowedMethods.PUT], options.route, target, propertyKey, options.parameters || "");
+        RegisterMethod(AllowedMethods[AllowedMethods.GET], options.route, target, propertyKey, options.parameters || "");
     }
 }
 
@@ -16,7 +16,7 @@ export function HttpGet(options: MethodOptions = {}) {
  */
 export function HttpPost(options: MethodOptions = {}) {
     return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => {
-        RegisterMethod(AllowedMethods[AllowedMethods.PUT], options.route, target, propertyKey, options.parameters || "");     
+        RegisterMethod(AllowedMethods[AllowedMethods.POST], options.route, target, propertyKey, options.parameters || "");     
     }
 }
 
@@ -25,7 +25,7 @@ export function HttpPost(options: MethodOptions = {}) {
  */
 export function HttpDelete(options: MethodOptions = {}) {
     return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => {
-        RegisterMethod(AllowedMethods[AllowedMethods.PUT], options.route, target, propertyKey, options.parameters || "");     
+        RegisterMethod(AllowedMethods[AllowedMethods.DELETE], options.route, target, propertyKey, options.parameters || "");     
     }
 }
 

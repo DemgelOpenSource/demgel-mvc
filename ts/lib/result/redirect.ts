@@ -5,12 +5,30 @@ import {pInject} from "../setup";
 
 export class RedirectResult extends Result {
     controller: string;
+    method: string | undefined;
+    options: Object;
 
     @pInject(RouteBuilder)
     router: RouteBuilder;
 
-    constructor(controller: any | string, private method?: string, options?: Object) {
+    constructor(controller: any | string)    
+    constructor(controller: any | string, method: string)
+    constructor(controller: any | string, options: Object)
+    constructor(controller: any | string, method: string, options: Object)
+    constructor(controller: any | string, method?: string | Object, options?: Object) {
         super();
+        if (method) {
+            if (typeof method === "string") {
+                this.method = method;
+            } else {
+                this.method = undefined;
+                if (!options) {
+                    this.options = method;
+                } else {
+                    this.options = options;
+                }
+            }
+        }
         if (typeof controller === 'string') {
             this.controller = controller + "/";
         } else {
@@ -32,7 +50,6 @@ export class RedirectResult extends Result {
         if (this.method) {
             url = `${url}${this.method}`;
         }
-
         res.redirect(url);
     }
 }

@@ -8,7 +8,7 @@ import {Context} from "./context";
 import {clone} from "lodash";
 import * as _debug from "debug";
 
-const debug = _debug("expressify:router");
+const debug = _debug("demgel-mvc:router");
 
 @injectable()
 export class RouteBuilder {
@@ -107,6 +107,7 @@ export class RouteBuilder {
                 if (method.method) {
                     let registerHandlerOnRouter = <IRouterMatcher<Router>>(<any>route.router)[method.method.toLowerCase()];
                     let handler = (req: Request, res: Response, next: any) => {
+                        debug("retrieving controller");
                         let cont: mvcController = this.kernel.get(<any>idx) as mvcController;
                         cont.context = (<any>req).context || new Context(req, res);
 
@@ -117,6 +118,7 @@ export class RouteBuilder {
                             args.push(req.params[param]);
                         });
                         let result: Result = (<any>cont)[targetMethod].apply(cont, args);
+                        debug("checking if headers are sent", res.headersSent);
                         if (!res.headersSent) {
                             result.handle(res);
                         }
