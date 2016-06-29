@@ -1,4 +1,5 @@
 import {AOptions} from "./options";
+import * as cookies from "cookie-parser";
 
 /**
  * The default server options
@@ -25,6 +26,10 @@ export class DefaultOptions extends AOptions {
 
     staticFiles = {
         paths: new Array<string>()
+    }
+
+    cookieOptions = {
+        
     }
 }
 

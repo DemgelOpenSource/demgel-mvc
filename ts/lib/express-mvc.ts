@@ -8,6 +8,7 @@ import {Context} from "./context";
 import {DefaultOptions} from "./options/defaults";
 import {mvcService} from "./services/service";
 import {createServer, Server} from "http";
+import * as cookie from "cookie-parser";
 
 export enum AllowedMethods {
     ALL,
@@ -43,6 +44,8 @@ export class ExpressMvc {
             req.context = new Context(req, res);
             next();
         });
+
+        this.express.use(cookie());
     }
 
     /**

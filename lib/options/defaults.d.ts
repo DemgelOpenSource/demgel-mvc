@@ -15,6 +15,7 @@ export declare class DefaultOptions extends AOptions {
     staticFiles: {
         paths: string[];
     };
+    cookieOptions: {};
 }
 export interface ViewOptions {
     path: string;
