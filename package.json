@@ -6,7 +6,9 @@
   "main": "lib/index",
   "typings": "lib/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "tenowg <Craig Russell>",
   "license": "MIT",
@@ -28,11 +30,13 @@
     "lodash": "^4.13.1",
     "pug": "^2.0.0-beta2",
     "serve-favicon": "^2.3.0",
-    "to-slug-case": "^1.0.0"
+    "to-slug-case": "^1.0.0",
+    "snyk": "^1.319.1"
   },
   "devDependencies": {
     "debug": "^2.2.0",
     "gulp-typescript": "^2.13.6",
     "inversify-dts": "^1.0.6"
-  }
+  },
+  "snyk": true
 }
