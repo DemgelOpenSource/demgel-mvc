@@ -26,7 +26,7 @@
     "express": "^4.13.4",
     "express-busboy": "^6.0.1",
     "lodash": "^4.13.1",
-    "pug": "^2.0.0-beta2",
+    "pug": "^3.0.0",
     "serve-favicon": "^2.3.0",
     "to-slug-case": "^1.0.0"
   },
